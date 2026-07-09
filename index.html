@@ -68,10 +68,17 @@
                         <input type="password" id="apiKeyInput" placeholder="API Key de Gemini" 
                             class="bg-transparent text-xs text-white placeholder-teal-300/70 focus:outline-none w-full sm:w-40" />
                     </div>
-                    <!-- Premium Voice Select (Hidden UI, locked strictly to Puck) -->
-                    <select id="voiceSelect" class="hidden">
-                        <option value="Puck" selected>Puck (Upbeat)</option>
-                    </select>
+                    <!-- Premium Voice Select -->
+                    <div class="flex items-center gap-1 bg-teal-900/40 px-2 py-1 rounded-lg text-xs shrink-0">
+                        <i class="fa-solid fa-user-gear text-teal-300"></i>
+                        <select id="voiceSelect" class="bg-transparent text-white focus:outline-none cursor-pointer">
+                            <option value="Zephyr" class="text-slate-800">Zephyr (Bright)</option>
+                            <option value="Puck" class="text-slate-800">Puck (Upbeat)</option>
+                            <option value="Charon" class="text-slate-800">Charon (Informative)</option>
+                            <option value="Kore" class="text-slate-800" selected>Kore (Firm)</option>
+                            <option value="Fenrir" class="text-slate-800">Fenrir (Excitable)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="flex justify-between items-center px-1 text-[10px] gap-2">
                     <a href="https://aistudio.google.com/" target="_blank" class="text-cyan-200 hover:text-cyan-100 underline flex items-center gap-1">
@@ -613,25 +620,7 @@ Follow these rules strictly:
             }
         }
 
-        // Play native base64 PCM audio instantly
-        function playPcmAudio(base64Data, mimeType) {
-            try {
-                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-                const pcmData = base64ToArrayBuffer(base64Data);
-                const pcm16 = new Int16Array(pcmData);
-                const wavBlob = pcmToWav(pcm16, sampleRate);
-                const audioUrl = URL.createObjectURL(wavBlob);
-                
-                const audio = new Audio(audioUrl);
-                // Adjust speech rate on the fly using standard HTML5 playbackRate
-                audio.playbackRate = parseFloat(speechRateInput.value);
-                audio.play();
-            } catch (e) {
-                console.error("PCM Playback failed: ", e);
-            }
-        }
-
-        // Play speech logic fallback (supports premium Gemini TTS voice or browser fallback)
+        // Play speech logic (supports premium Gemini TTS voice or browser fallback)
         async function speakText(text) {
             // Filter Spanish tips from audio readout
             const cleanedText = text.replace(/\([^)]+\)/g, '').trim();
@@ -639,10 +628,10 @@ Follow these rules strictly:
 
             if (apiKey !== "") {
                 try {
-                    // Activate Hyper-Realistic Gemini TTS Engine using optimized model
+                    // Activate Hyper-Realistic Gemini TTS Engine
                     const selectedVoice = voiceSelect.value;
                     const speechRate = speechRateInput.value;
-                    const controlPrompt = `Say clearly: ${cleanedText}`;
+                    const controlPrompt = `Say clearly at speed factor ${speechRate}x: ${cleanedText}`;
 
                     const payload = {
                         contents: [{ parts: [{ text: controlPrompt }] }],
@@ -656,7 +645,7 @@ Follow these rules strictly:
                         }
                     };
 
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -674,7 +663,14 @@ Follow these rules strictly:
                     const mimeType = part?.inlineData?.mimeType;
 
                     if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                        playPcmAudio(audioData, mimeType);
+                        const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+                        const pcmData = base64ToArrayBuffer(audioData);
+                        const pcm16 = new Int16Array(pcmData);
+                        const wavBlob = pcmToWav(pcm16, sampleRate);
+                        const audioUrl = URL.createObjectURL(wavBlob);
+                        
+                        const audio = new Audio(audioUrl);
+                        audio.play();
                         return;
                     } else {
                         throw new Error("No readable raw audio returned.");
@@ -713,11 +709,10 @@ Follow these rules strictly:
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Fetch LLM response (Optimized: single call for Text + Audio content)
+        // Fetch LLM response
         async function fetchGeminiResponse() {
             const apiKey = apiKeyInput.value.trim();
-            // Using the fast, highly capable gemini-2.5-flash model
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
             const payload = {
                 contents: chatHistory,
@@ -725,18 +720,6 @@ Follow these rules strictly:
                     parts: [{ text: systemPrompt }]
                 }
             };
-
-            // Request BOTH modalities to avoid a second API roundtrip
-            if (apiKey !== "") {
-                payload.generationConfig = {
-                    responseModalities: ["TEXT", "AUDIO"],
-                    speechConfig: {
-                        voiceConfig: {
-                            prebuiltVoiceConfig: { voiceName: "Puck" }
-                        }
-                    }
-                };
-            }
 
             const maxRetries = 3;
             let attempt = 0;
@@ -762,23 +745,10 @@ Follow these rules strictly:
                     }
 
                     const result = await response.json();
-                    const parts = result.candidates?.[0]?.content?.parts;
+                    const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
                     
-                    if (parts && parts.length > 0) {
-                        let text = "";
-                        let audioData = null;
-                        let mimeType = null;
-
-                        for (const part of parts) {
-                            if (part.text) {
-                                text = part.text;
-                            } else if (part.inlineData) {
-                                audioData = part.inlineData.data;
-                                mimeType = part.inlineData.mimeType;
-                            }
-                        }
-
-                        return { text, audioData, mimeType };
+                    if (aiText) {
+                        return aiText;
                     } else {
                         throw new Error("No readable response returned.");
                     }
@@ -820,23 +790,16 @@ Follow these rules strictly:
             scrollToBottom();
 
             try {
-                // 5. Query Gemini (Fast single round-trip for Text & Audio)
-                const result = await fetchGeminiResponse();
+                // 5. Query Gemini
+                const aiResponse = await fetchGeminiResponse();
                 removeTypingIndicator(loadingId);
-
-                const aiResponse = result.text;
 
                 // 6. Append response
                 appendMessage(aiResponse, 'model');
-                // Store only text in context history to prevent token bloat
                 chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
 
-                // Play the pre-fetched premium audio instantly or run standard TTS fallback
-                if (result.audioData && result.mimeType) {
-                    playPcmAudio(result.audioData, result.mimeType);
-                } else {
-                    speakText(aiResponse);
-                }
+                // Try to speak response naturally
+                speakText(aiResponse);
 
             } catch (err) {
                 console.error("Gemini API error: ", err);

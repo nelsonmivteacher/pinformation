@@ -33,7 +33,7 @@
         }
         /* Pulse Animation for Recording */
         @keyframes record-pulse {
-            0 { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
@@ -440,7 +440,8 @@ Follow these rules strictly:
         // Accordion toggle helper for mobile layout Optimization
         function toggleSection(contentId, chevronId) {
             // Only toggle on mobile screens (< 1024px)
-            if (window.innerWidth >= 1024) return;
+            const isLargeScreen = window.innerWidth >= 1024;
+            if (isLargeScreen) return;
             
             const content = document.getElementById(contentId);
             const chevron = document.getElementById(chevronId);
@@ -1022,7 +1023,10 @@ Follow these rules strictly:
 
         // Initialize Speak welcome
         window.onload = function() {
-            speakText("Hello! My name is John. What is your name?");
+            // Safe execution of welcome speech to bypass mobile autoplay blocks
+            setTimeout(() => {
+                speakText("Hello! My name is John. What is your name?");
+            }, 800);
             updateBadgeState();
         }
     </script>

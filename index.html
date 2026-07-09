@@ -33,7 +33,7 @@
         }
         /* Pulse Animation for Recording */
         @keyframes record-pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            0 { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
@@ -639,10 +639,10 @@ Follow these rules strictly:
 
             if (apiKey !== "") {
                 try {
-                    // Activate Hyper-Realistic Gemini TTS Engine using optimized model
+                    // Activate Hyper-Realistic Gemini TTS Engine using updated gemini-3.1-flash-tts-preview model
                     const selectedVoice = voiceSelect.value;
                     const speechRate = speechRateInput.value;
-                    const controlPrompt = `Say clearly: ${cleanedText}`;
+                    const controlPrompt = cleanedText;
 
                     const payload = {
                         contents: [{ parts: [{ text: controlPrompt }] }],
@@ -656,7 +656,7 @@ Follow these rules strictly:
                         }
                     };
 
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-tts-preview:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',

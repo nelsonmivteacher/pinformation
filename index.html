@@ -3,582 +3,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A1 English Practice - Nice to meet you!</title>
-    <!-- Tailwind CSS -->
+    <title>Practica de Inglés A1 - Unit 1: Nice to meet you!</title>
+    <!-- Tailwind CSS for modern responsive styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter & Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons for nice buttons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        h1, h2, h3 {
-            font-family: 'Poppins', sans-serif;
-        }
-        /* Custom Scrollbar for Chat */
-        .chat-scrollbar::-webkit-scrollbar {
+        /* Custom scrollbar for chat log */
+        .chat-scroll::-webkit-scrollbar {
             width: 6px;
-            height: 6px;
         }
-        .chat-scrollbar::-webkit-scrollbar-track {
+        .chat-scroll::-webkit-scrollbar-track {
             background: transparent;
         }
-        .chat-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 10px;
-        }
-        /* Pulse Animation for Recording */
-        @keyframes record-pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .pulse-recording {
-            animation: record-pulse 1.5s infinite;
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.3);
+            border-radius: 20px;
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Header -->
-    <header class="bg-gradient-to-r from-teal-600 to-cyan-700 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="bg-white text-teal-700 p-2 rounded-xl shadow-inner shrink-0">
-                    <i class="fa-solid fa-microphone-lines text-xl sm:text-2xl animate-pulse"></i>
+    <!-- Top Header / Bar -->
+    <header class="bg-indigo-600 text-white shadow-md py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold">
+                    👨‍🏫
                 </div>
                 <div>
-                    <h1 class="text-lg sm:text-2xl font-bold tracking-tight flex items-center gap-2">
-                        English Voice Partner 
-                        <span class="text-[10px] bg-amber-500 text-slate-900 font-semibold px-2 py-0.5 rounded">Voz Activa</span>
-                    </h1>
-                    <p class="text-[11px] text-teal-100">Unit 1: Nice to meet you! (Habla con John)</p>
+                    <h1 class="text-lg font-bold leading-tight">Teacher John</h1>
+                    <p class="text-xs text-indigo-200">A1 Practice • Unit 1</p>
                 </div>
             </div>
             
-            <!-- API Key & Voice Configuration Box -->
-            <div class="flex flex-col gap-1 w-full md:w-auto">
-                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-teal-800/40 p-1.5 rounded-xl border border-teal-500/30">
-                    <div class="flex items-center gap-1.5 px-2 py-1 bg-teal-900/40 rounded-lg flex-1 sm:flex-initial">
-                        <i class="fa-solid fa-key text-xs text-teal-300"></i>
-                        <input type="password" id="apiKeyInput" placeholder="API Key de Gemini" 
-                            class="bg-transparent text-xs text-white placeholder-teal-300/70 focus:outline-none w-full sm:w-40" />
-                    </div>
-                    <!-- Premium Voice Select -->
-                    <div class="flex items-center gap-1 bg-teal-900/40 px-2 py-1 rounded-lg text-xs shrink-0">
-                        <i class="fa-solid fa-user-gear text-teal-300"></i>
-                        <select id="voiceSelect" class="bg-transparent text-white focus:outline-none cursor-pointer">
-                            <option value="Zephyr" class="text-slate-800">Zephyr (Bright)</option>
-                            <option value="Puck" class="text-slate-800">Puck (Upbeat)</option>
-                            <option value="Charon" class="text-slate-800">Charon (Informative)</option>
-                            <option value="Kore" class="text-slate-800" selected>Kore (Firm)</option>
-                            <option value="Fenrir" class="text-slate-800">Fenrir (Excitable)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-between items-center px-1 text-[10px] gap-2">
-                    <a href="https://aistudio.google.com/" target="_blank" class="text-cyan-200 hover:text-cyan-100 underline flex items-center gap-1">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Obtén tu Gemini API Key gratis aquí
-                    </a>
-                    <span id="voiceStatusBadge" class="text-amber-200 flex items-center gap-1 shrink-0">
-                        <i class="fa-solid fa-circle text-[8px]"></i> Voz Estándar
-                    </span>
-                </div>
-            </div>
+            <!-- Quick Settings Button (API Key) -->
+            <button id="settingsBtn" class="text-white hover:text-indigo-200 p-2 transition-all" title="Configurar API Key">
+                <i class="fa-solid fa-gear text-xl"></i>
+            </button>
         </div>
     </header>
 
-    <!-- Main Workspace Grid -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-
-        <!-- Left Side: Reference Dialogue & Goal Checklist -->
-        <section class="lg:col-span-4 flex flex-col gap-4 lg:gap-6">
-            
-            <!-- Reference Dialogue (Collapsible on mobile) -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-                <button onclick="toggleSection('dialogueContent', 'dialogueChevron')" class="w-full flex items-center justify-between p-4 bg-slate-50/50 hover:bg-slate-50 transition-colors border-b border-slate-100 lg:cursor-default">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-book-open text-teal-600"></i>
-                        <h2 class="font-semibold text-slate-800 text-sm sm:text-base">Guía de Diálogo (Unit 1)</h2>
-                    </div>
-                    <i id="dialogueChevron" class="fa-solid fa-chevron-down text-slate-400 lg:hidden transition-transform"></i>
-                </button>
-                
-                <div id="dialogueContent" class="hidden lg:block p-5 pt-3">
-                    <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-                        Practica la conversación. Intenta responder de manera oral a las preguntas usando tus propios datos.
-                    </p>
-
-                    <div class="space-y-3 max-h-[220px] overflow-y-auto chat-scrollbar text-xs sm:text-sm">
-                        <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
-                            <span class="font-bold text-teal-800 block text-[10px]">John:</span>
-                            "Hello! My name is John. What is your name?"
-                        </div>
-                        <div class="p-2.5 rounded-lg bg-slate-50 border-l-4 border-slate-300">
-                            <span class="font-bold text-slate-700 block text-[10px]">Sarah (Tú):</span>
-                            "Hi John! I am Sarah. Nice to meet you."
-                        </div>
-                        <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
-                            <span class="font-bold text-teal-800 block text-[10px]">John:</span>
-                            "Nice to meet you too, Sarah. Where are you from?"
-                        </div>
-                        <div class="p-2.5 rounded-lg bg-slate-50 border-l-4 border-slate-300">
-                            <span class="font-bold text-slate-700 block text-[10px]">Sarah (Tú):</span>
-                            "I am from Canada. And you?"
-                        </div>
-                        <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
-                            <span class="font-bold text-teal-800 block text-[10px]">John:</span>
-                            "I am from London, in the United Kingdom. How old are you?"
-                        </div>
-                        <div class="p-2.5 rounded-lg bg-slate-50 border-l-4 border-slate-300">
-                            <span class="font-bold text-slate-700 block text-[10px]">Sarah (Tú):</span>
-                            "I am 25 years old. And you?"
-                        </div>
-                        <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
-                            <span class="font-bold text-teal-800 block text-[10px]">John:</span>
-                            "I am 27. What is your job?"
-                        </div>
-                        <div class="p-2.5 rounded-lg bg-slate-50 border-l-4 border-slate-300">
-                            <span class="font-bold text-slate-700 block text-[10px]">Sarah (Tú):</span>
-                            "I am a teacher. And you?"
-                        </div>
-                        <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
-                            <span class="font-bold text-teal-800 block text-[10px]">John:</span>
-                            "Oh, interesting! I am a doctor."
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Practice Tracker Checklist (Collapsible on mobile) -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-                <button onclick="toggleSection('checklistContent', 'checklistChevron')" class="w-full flex items-center justify-between p-4 bg-slate-50/50 hover:bg-slate-50 transition-colors border-b border-slate-100 lg:cursor-default">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-indigo-600"></i>
-                        <h2 class="font-semibold text-slate-800 text-sm sm:text-base">Metas del Diálogo</h2>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="completionRate" class="text-xs font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">0/4</span>
-                        <i id="checklistChevron" class="fa-solid fa-chevron-down text-slate-400 lg:hidden transition-transform"></i>
-                    </div>
-                </button>
-
-                <div id="checklistContent" class="hidden lg:block p-5 pt-3">
-                    <ul class="space-y-3" id="objectivesList">
-                        <li class="flex items-start gap-3 text-xs sm:text-sm text-slate-600 transition-all duration-300 opacity-60" id="obj-name">
-                            <span class="mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon shrink-0">
-                                <i class="fa-solid fa-circle text-[8px]"></i>
-                            </span>
-                            <div>
-                                <span class="font-medium block text-slate-800">Decir tu Nombre</span>
-                                <span class="text-[11px] text-slate-400">Ejemplo: "My name is Carlos."</span>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3 text-xs sm:text-sm text-slate-600 transition-all duration-300 opacity-60" id="obj-country">
-                            <span class="mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon shrink-0">
-                                <i class="fa-solid fa-circle text-[8px]"></i>
-                            </span>
-                            <div>
-                                <span class="font-medium block text-slate-800">Decir tu País de Origen</span>
-                                <span class="text-[11px] text-slate-400">Ejemplo: "I am from Spain."</span>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3 text-xs sm:text-sm text-slate-600 transition-all duration-300 opacity-60" id="obj-age">
-                            <span class="mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon shrink-0">
-                                <i class="fa-solid fa-circle text-[8px]"></i>
-                            </span>
-                            <div>
-                                <span class="font-medium block text-slate-800">Mencionar tu Edad</span>
-                                <span class="text-[11px] text-slate-400">Ejemplo: "I am 20 years old."</span>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3 text-xs sm:text-sm text-slate-600 transition-all duration-300 opacity-60" id="obj-job">
-                            <span class="mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon shrink-0">
-                                <i class="fa-solid fa-circle text-[8px]"></i>
-                            </span>
-                            <div>
-                                <span class="font-medium block text-slate-800">Compartir tu Profesión</span>
-                                <span class="text-[11px] text-slate-400">Ejemplo: "I am a student."</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Right Side: Chat & Interactive Voice Elements -->
-        <section class="lg:col-span-8 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden h-[500px] sm:h-[600px] lg:h-[650px]">
-            
-            <!-- Chat Partner Title & Speech Speed Controls -->
-            <div class="bg-slate-50 border-b border-slate-200/80 px-4 sm:px-6 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <div class="relative shrink-0">
-                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm sm:text-base">
-                            J
-                        </div>
-                        <div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"></div>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-slate-800 leading-tight text-sm sm:text-base">Chat con John</h3>
-                        <span class="text-[10px] sm:text-xs text-slate-500 flex items-center gap-1">
-                            <i class="fa-solid fa-user-astronaut text-teal-600"></i> Tu tutor de pronunciación
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Speech Speed Slider -->
-                <div class="flex items-center gap-2 bg-white border border-slate-200 px-2.5 py-1 rounded-xl shadow-sm text-[11px] sm:text-xs">
-                    <span class="text-slate-500 font-medium flex items-center gap-1">
-                        <i class="fa-solid fa-gauge-high text-teal-600"></i> Velocidad:
-                    </span>
-                    <div class="flex items-center gap-1.5">
-                        <input type="range" id="speechRate" min="0.5" max="1.3" step="0.1" value="0.8" 
-                            class="w-16 sm:w-24 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600" />
-                        <span id="rateValue" class="text-slate-700 font-bold min-w-[20px]">0.8x</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chat Message Window -->
-            <div id="chatMessages" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 chat-scrollbar bg-slate-50/50">
-                <!-- Initial Welcome Message from John -->
-                <div class="flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%]">
-                    <div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                        J
-                    </div>
-                    <div class="space-y-1">
-                        <div class="bg-white border border-slate-200/80 px-3 py-2 sm:px-4 sm:py-3 rounded-2xl rounded-tl-none shadow-sm text-slate-700 text-xs sm:text-sm leading-relaxed relative">
-                            Hello! My name is John. What is your name?
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="speakText('Hello! My name is John. What is your name?')" class="text-teal-600 hover:text-teal-700 text-[11px] flex items-center gap-1 px-1 py-0.5 rounded transition-colors font-medium" title="Escuchar pronunciación">
-                                <i class="fa-solid fa-volume-high"></i> Escuchar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Task Completed Sticky Notification Banner (Hidden initially) -->
-            <div id="congratulationsBanner" class="hidden bg-emerald-50 border-t border-emerald-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-emerald-800 transition-all">
-                <span class="flex items-center gap-2 font-semibold text-center sm:text-left">
-                    <i class="fa-solid fa-medal text-emerald-600 text-lg sm:text-xl animate-bounce"></i>
-                    <span>¡Excelente trabajo! Has completado todas las metas. Descarga tu conversación ahora para subirla a Classroom.</span>
-                </span>
-                <button onclick="downloadConversation()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors shadow-sm">
-                    <i class="fa-solid fa-file-arrow-down"></i> Descargar Diálogo
-                </button>
-            </div>
-
-            <!-- Speech Recognition Active Overlay Panel -->
-            <div id="speechOverlay" class="hidden bg-red-50 border-t border-red-200 px-4 sm:px-6 py-2 flex items-center justify-between text-[11px] sm:text-xs text-red-700 transition-all">
-                <span class="flex items-center gap-2 font-semibold">
-                    <span class="h-2 w-2 rounded-full bg-red-600 animate-ping"></span>
-                    <i class="fa-solid fa-microphone-lines"></i> Grabando tu pronunciación... ¡Habla ahora en inglés!
-                </span>
-                <button onclick="cancelSpeechInput()" class="text-red-500 hover:text-red-700 font-bold">Cancelar</button>
-            </div>
-
-            <!-- Quick Scaffold Word Chips for Quick References (Responsive carousel) -->
-            <div class="bg-slate-50 border-t border-slate-150 px-3 sm:px-4 py-2 flex items-center gap-2 overflow-x-auto whitespace-nowrap chat-scrollbar shrink-0">
-                <span class="text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-slate-400 mr-1 shrink-0">
-                    <i class="fa-solid fa-keyboard"></i> Ayuda:
-                </span>
-                <button onclick="useChip('My name is ')" class="text-[11px] bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-700 px-2.5 py-1 rounded-full transition-all shadow-sm shrink-0">
-                    My name is...
-                </button>
-                <button onclick="useChip('I am from ')" class="text-[11px] bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-700 px-2.5 py-1 rounded-full transition-all shadow-sm shrink-0">
-                    I am from...
-                </button>
-                <button onclick="useChip('I am ')" class="text-[11px] bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-700 px-2.5 py-1 rounded-full transition-all shadow-sm shrink-0">
-                    I am [age] years old...
-                </button>
-                <button onclick="useChip('I am a student')" class="text-[11px] bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-700 px-2.5 py-1 rounded-full transition-all shadow-sm shrink-0">
-                    I am a student.
-                </button>
-            </div>
-
-            <!-- Interactive Input and Microphone Panel -->
-            <div class="p-3 sm:p-4 border-t border-slate-200 bg-white shrink-0">
-                <form id="chatForm" onsubmit="handleSendMessage(event)" class="flex gap-1.5 sm:gap-2">
-                    <!-- Mic trigger button -->
-                    <button type="button" id="micBtn" onclick="toggleSpeechInput()" class="bg-teal-50 text-teal-600 hover:bg-teal-100 border border-teal-200 font-semibold p-3 sm:p-3.5 rounded-xl transition-all flex items-center justify-center shadow-sm shrink-0" title="Presiona para hablar en inglés">
-                        <i id="micIcon" class="fa-solid fa-microphone text-base sm:text-lg"></i>
-                    </button>
-                    
-                    <input type="text" id="userInput" placeholder="Toca el micro 🎤 o escribe..." autocomplete="off"
-                        class="flex-1 border border-slate-300 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition-all text-slate-700 placeholder:text-slate-400" />
-                    
-                    <button type="submit" id="sendBtn" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5 shrink-0">
-                        <span class="hidden sm:inline">Enviar</span>
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </form>
-                
-                <!-- Reset Board / Controls -->
-                <div class="flex justify-between items-center mt-2.5 text-[10px] sm:text-xs text-slate-400 gap-2">
-                    <span class="flex items-center gap-1 text-slate-500 truncate">
-                        <i class="fa-solid fa-info-circle text-teal-500 shrink-0"></i> Habla en inglés usando el micrófono.
-                    </span>
-                    <button onclick="resetPractice()" class="text-red-500 hover:text-red-600 font-medium transition-colors flex items-center gap-1 shrink-0">
-                        <i class="fa-solid fa-rotate-right"></i> Reiniciar
-                    </button>
-                </div>
-            </div>
-
-        </section>
-    </main>
-
-    <!-- Custom Modal for Alerts (Avoids browser blocky alert) -->
-    <div id="customModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 m-4 animate-in fade-in zoom-in duration-200">
-            <div class="flex items-center gap-3 text-amber-600 mb-3" id="modalHeader">
-                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-                <h3 class="font-bold text-lg text-slate-800" id="modalTitle">Atención</h3>
-            </div>
-            <p class="text-sm text-slate-600 leading-relaxed mb-6" id="modalMessage">
-                Mensaje de aviso predeterminado.
+    <!-- API Key Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button id="closeSettingsBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h2 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-key text-indigo-500"></i> Configuración de Voz Premium
+            </h2>
+            <p class="text-xs text-slate-500 mb-3 leading-relaxed">
+                El chat de texto utiliza inteligencia artificial de forma gratuita. Si deseas activar la voz realista de <strong>Puck (Gemini TTS)</strong>, ingresa tu API Key de Google Gemini.
             </p>
-            <div class="flex justify-end gap-2" id="modalActions">
-                <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors">
-                    Aceptar
-                </button>
+            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3 mb-4 flex items-start gap-2.5">
+                <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5"></i>
+                <p class="text-xs text-indigo-950 leading-normal">
+                    ¿No tienes una API Key? Puedes obtener una gratis y rápido con tu cuenta de Google ingresando a 
+                    <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-700 underline font-semibold hover:text-indigo-900 inline-flex items-center gap-1">
+                        Google AI Studio <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                    </a>.
+                </p>
             </div>
+            <div class="mb-4">
+                <label for="apiKeyInput" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Gemini API Key</label>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <button id="saveApiKeyBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-all shadow-md">
+                Guardar Configuración
+            </button>
         </div>
     </div>
 
-    <!-- Celebration Modal (Specifically designed for classroom delivery) -->
-    <div id="classroomModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-lg w-full p-6 sm:p-8 relative text-center">
-            <!-- Close trigger -->
-            <button onclick="closeClassroomModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg transition-colors">
+    <!-- Main Interactive Container -->
+    <main class="flex-grow max-w-xl w-full mx-auto p-4 flex flex-col justify-between overflow-hidden">
+        
+        <!-- Welcome Dialogue Card (collapsible) -->
+        <div id="dialogueGuide" class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4 transition-all relative">
+            <button onclick="document.getElementById('dialogueGuide').style.display='none'" class="absolute top-2 right-2 text-slate-400 hover:text-indigo-600">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            
-            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner animate-bounce">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-            </div>
-            
-            <h3 class="font-bold text-xl sm:text-2xl text-slate-800 mb-2">🎉 ¡Conversación Completada!</h3>
-            <p class="text-xs sm:text-sm text-slate-500 mb-6 leading-relaxed">
-                Has completado con éxito todas las metas de esta unidad. Para recibir tu calificación, por favor descarga el reporte de la conversación y súbelo a tu clase de **Google Classroom**.
+            <h3 class="text-xs font-bold uppercase text-indigo-700 mb-1">Guía del Diálogo: Unit 1</h3>
+            <p class="text-xs text-indigo-900 leading-relaxed">
+                Practica presentándote con John. Él te preguntará tu <strong>nombre</strong>, tu <strong>país</strong>, tu <strong>edad</strong> y tu <strong>profesión</strong>. Si cometes errores, ¡él te guiará con cariño en español!
             </p>
-            
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 text-left space-y-2">
-                <h4 class="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-list-ol text-teal-600"></i> Pasos para entregar la tarea:
-                </h4>
-                <ol class="list-decimal list-inside text-xs text-slate-600 space-y-1.5">
-                    <li>Haz clic en el botón verde **"Descargar Diálogo"** de abajo.</li>
-                    <li>Entra a tu **Google Classroom** y abre la tarea de esta unidad.</li>
-                    <li>Sube el archivo de texto descargado (`.txt`) como un archivo adjunto de tu entrega.</li>
-                    <li>Presiona **"Entregar"** en Classroom. ¡Y listo!</li>
-                </ol>
+        </div>
+
+        <!-- Chat Logs container -->
+        <div id="chatContainer" class="flex-grow chat-scroll overflow-y-auto space-y-4 mb-4 flex flex-col pb-4">
+            <!-- Initial static message from John -->
+            <div class="flex gap-2.5 items-start">
+                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                    J
+                </div>
+                <div class="bg-white border border-slate-100 rounded-2xl rounded-tl-none p-3 shadow-sm max-w-[85%]">
+                    <p class="text-sm text-slate-800 leading-relaxed">Hello! My name is John. What is your name?</p>
+                    <button onclick="speakText('Hello! My name is John. What is your name?')" class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 flex items-center gap-1 font-medium transition-all">
+                        <i class="fa-solid fa-volume-high"></i> Escuchar
+                    </button>
+                </div>
             </div>
+        </div>
+
+        <!-- Status & Listening Indicator -->
+        <div id="statusIndicator" class="hidden text-center text-xs text-indigo-600 font-semibold animate-pulse mb-2 flex items-center justify-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+            <span id="statusText">John está pensando...</span>
+        </div>
+
+        <!-- Student Input Controls -->
+        <div class="space-y-3 bg-white p-3 rounded-2xl shadow-md border border-slate-100">
             
-            <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <button onclick="downloadAndCloseModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-file-arrow-down"></i> Descargar Diálogo (.txt)
+            <!-- Real-time transcription preview when dictating -->
+            <div id="speechPreview" class="hidden text-xs italic text-slate-500 bg-slate-50 p-2 rounded-xl text-center border border-dashed border-slate-200">
+                Escuchando: "<span id="previewText">...</span>"
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Text input -->
+                <input type="text" id="userInput" placeholder="Escribe tu respuesta aquí..." class="flex-grow border border-slate-100 rounded-xl px-4 py-3 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                
+                <!-- Dictation / Voice Button -->
+                <button id="micBtn" class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 flex items-center justify-center transition-all relative" title="Dictar respuesta">
+                    <i class="fa-solid fa-microphone text-lg"></i>
+                    <span id="micPulse" class="absolute inset-0 rounded-xl bg-indigo-400/20 animate-ping hidden"></span>
                 </button>
-                <button onclick="closeClassroomModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm px-5 py-3 rounded-xl transition-colors">
-                    Seguir Practicando
+
+                <!-- Send Button -->
+                <button id="sendBtn" class="w-12 h-12 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 flex items-center justify-center shadow-md transition-all">
+                    <i class="fa-solid fa-paper-plane text-md"></i>
                 </button>
+            </div>
+
+            <!-- Hint for students -->
+            <div class="flex justify-between items-center text-[11px] text-slate-400 px-1">
+                <span>Presiona el 🎙️ para dictar en inglés</span>
+                <span id="currentPromptGuide" class="font-medium text-indigo-500">Fase 1: Di tu nombre</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Congratulation Card & Download Action (hidden initially) -->
+    <div id="congratsSection" class="hidden bg-emerald-50 border-t border-emerald-100 p-4 sticky bottom-0 z-40 animate-fade-in shadow-inner">
+        <div class="max-w-xl mx-auto flex flex-col items-center text-center gap-3">
+            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-2xl">
+                🎉
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-emerald-800">¡Felicidades! Has completado el diálogo</h3>
+                <p class="text-xs text-emerald-600 mt-1 max-w-sm">
+                    Has practicado exitosamente tu presentación. Ahora descarga tu reporte de transcripción y súbelo a tu tarea en Google Classroom.
+                </p>
+            </div>
+            <div class="flex gap-2 w-full">
+                <button id="downloadBtn" class="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-download"></i> Descargar Tarea (TXT)
+                </button>
+                <a href="https://classroom.google.com" target="_blank" class="bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 text-xs font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-graduation-cap"></i> Google Classroom
+                </a>
             </div>
         </div>
     </div>
 
     <script>
-        // System Prompt defining rules strictly to avoid alignment issues
-        const systemPrompt = `Act as an English teacher for an A1 beginner student. We are going to practice a basic introduction dialogue based on the text "Unit 1: Nice to meet you!".
+        // API Configurations
+        let API_KEY = localStorage.getItem('gemini_api_key') || "";
+        const FREE_CHAT_MODEL = "gemini-3-flash-preview";
+        const PREMIUM_TTS_MODEL = "gemini-2.5-flash-preview-tts";
 
-Follow these rules strictly:
-1. You are John. You are friendly, patient, and motivating.
-2. Start the conversation by saying: "Hello! My name is John. What is your name?" (This has been sent already in the UI. Proceed with the logic immediately).
-3. Wait for the student's response. Do not write the whole conversation at once. Write only one turn at a time.
-4. Use simple A1 vocabulary.
-5. Keep your responses short (maximum 2 sentences).
-6. Correction rule: If the user makes a grammatical mistake, gently correct them in Spanish inside parentheses (like this in Spanish), and then continue the conversation in English.
-7. Ask about their name, country, age, and job, just like the original text. Maintain a logical order.
-8. Once all 4 topics (Name, Country, Age, Job) are discussed, congratulate them warmly in English and say they completed Unit 1 successfully.`;
-
-        // Chat state
+        // Global State variables
         let chatHistory = [
-            { role: "model", parts: [{ text: "Hello! My name is John. What is your name?" }] }
+            { role: "user", parts: [{ text: "Hello! My name is John. What is your name?" }] }
+        ];
+        
+        // This log tracks human-readable entries for downloading
+        let transcriptLog = "UNIDAD 1: NICE TO MEET YOU! - REPORTE DE DIÁLOGO\n================================================\n\nJohn: Hello! My name is John. What is your name?\n";
+        
+        let conversationStage = 0; // Stages: 0: Name, 1: Country, 2: Age, 3: Job, 4: Finished
+        const stagesInfo = [
+            "Fase 1: Di tu nombre (Sarah o tu nombre real)",
+            "Fase 2: Di de dónde eres (Canadá, etc.)",
+            "Fase 3: Di cuántos años tienes",
+            "Fase 4: Di cuál es tu ocupación",
+            "¡Conversación completada!"
         ];
 
-        // Track objectives
-        const objectives = {
-            name: false,
-            country: false,
-            age: false,
-            job: false
-        };
+        // System prompt directing John to act as an A1 teacher and use standard Spanish corrections inside parenthesis
+        const systemInstruction = `
+You are John, an English teacher interacting with an A1 beginner student.
+Your goal is to practice a basic introduction dialogue based on the text "Unit 1: Nice to meet you!".
 
-        // TTS setup
-        const speechRateInput = document.getElementById('speechRate');
-        const rateValueLabel = document.getElementById('rateValue');
+Dialogue Flow context (you act as John, student acts as Sarah/themselves):
+- John: Hello! My name is John. What is your name?
+- Sarah: Hi John! I am Sarah. Nice to meet you.
+- John: Nice to meet you too, Sarah. Where are you from?
+- Sarah: I am from Canada. And you?
+- John: I am from London, in the United Kingdom. How old are you?
+- Sarah: I am 25 years old. And you?
+- John: I am 27. What is your job?
+- Sarah: I am a teacher. And you?
+- John: Oh, interesting! I am a doctor.
+
+Strict Rules:
+1. Respond using extremely simple A1 English. Keep your responses short (maximum 2 sentences).
+2. DO NOT write the whole conversation. Wait for the student response and only reply to their latest message.
+3. Keep asking sequentially for: Name -> Country -> Age -> Job, just like the flow.
+4. CORRECTION RULE: If the student makes any grammatical error, spelling mistake or improper formulation in English, gently explain the correction in Spanish inside parentheses at the start of your message, e.g. "(Recuerda que en inglés para decir de dónde eres usamos 'I am from', no 'I from'.) Nice to meet you too! Where are you from?". Then continue the English speech. If there are no errors, do NOT include parentheses.
+5. If the dialogue reaches the final answer (Job is told), wrap up nicely, say goodbye and end.
+        `;
+
+        // Initialize UI Elements
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const micBtn = document.getElementById('micBtn');
+        const micPulse = document.getElementById('micPulse');
+        const speechPreview = document.getElementById('speechPreview');
+        const previewText = document.getElementById('previewText');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const currentPromptGuide = document.getElementById('currentPromptGuide');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
         const apiKeyInput = document.getElementById('apiKeyInput');
-        const voiceSelect = document.getElementById('voiceSelect');
-        const voiceStatusBadge = document.getElementById('voiceStatusBadge');
+        const congratsSection = document.getElementById('congratsSection');
+        const downloadBtn = document.getElementById('downloadBtn');
 
-        speechRateInput.addEventListener('input', (e) => {
-            rateValueLabel.textContent = `${e.target.value}x`;
+        // Set API key if present in storage
+        if (API_KEY) {
+            apiKeyInput.value = API_KEY;
+        }
+
+        // Settings Modal events
+        settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+        closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
+        saveApiKeyBtn.addEventListener('click', () => {
+            API_KEY = apiKeyInput.value.trim();
+            localStorage.setItem('gemini_api_key', API_KEY);
+            settingsModal.classList.add('hidden');
+            showFeedback("Configuración guardada");
         });
 
-        // Monitor if API Key is set to update badge indicator
-        apiKeyInput.addEventListener('input', () => {
-            updateBadgeState();
-        });
-
-        function updateBadgeState() {
-            if (apiKeyInput.value.trim() !== "") {
-                voiceStatusBadge.innerHTML = '<i class="fa-solid fa-circle text-[8px] text-emerald-400"></i> Voz Premium (Gemini)';
-                voiceStatusBadge.className = "text-emerald-200 flex items-center gap-1 shrink-0";
-            } else {
-                voiceStatusBadge.innerHTML = '<i class="fa-solid fa-circle text-[8px] text-amber-400"></i> Voz Estándar';
-                voiceStatusBadge.className = "text-amber-200 flex items-center gap-1 shrink-0";
-            }
-        }
-
-        // Accordion toggle helper for mobile layout Optimization
-        function toggleSection(contentId, chevronId) {
-            // Only toggle on mobile screens (< 1024px)
-            if (window.innerWidth >= 1024) return;
-            
-            const content = document.getElementById(contentId);
-            const chevron = document.getElementById(chevronId);
-            
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                chevron.classList.add('rotate-180');
-            } else {
-                content.classList.add('hidden');
-                chevron.classList.remove('rotate-180');
-            }
-        }
-
-        // Use helper chips
-        function useChip(text) {
-            const userInput = document.getElementById('userInput');
-            userInput.value = text;
-            userInput.focus();
-        }
-
-        // Show Custom Alert
-        function showAlert(title, message, isError = false) {
-            const modal = document.getElementById('customModal');
-            const modalHeader = document.getElementById('modalHeader');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalMessage = document.getElementById('modalMessage');
-
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-
-            if (isError) {
-                modalHeader.innerHTML = '<i class="fa-solid fa-circle-exclamation text-2xl text-red-500"></i>';
-                modalTitle.className = "font-bold text-lg text-slate-800";
-            } else {
-                modalHeader.innerHTML = '<i class="fa-solid fa-circle-info text-2xl text-teal-500"></i>';
-                modalTitle.className = "font-bold text-lg text-slate-800";
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('customModal').classList.add('hidden');
-        }
-
-        // Classroom Celebration Modal Helpers
-        function showClassroomModal() {
-            document.getElementById('classroomModal').classList.remove('hidden');
-        }
-
-        function closeClassroomModal() {
-            document.getElementById('classroomModal').classList.add('hidden');
-        }
-
-        function downloadAndCloseModal() {
-            downloadConversation();
-            closeClassroomModal();
-        }
-
-        // Speech Recognition Setup
+        // Web Speech API - Speech Recognition (Dictation) Setup
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition = null;
-        let isRecording = false;
+        let recognition;
+        let isListening = false;
 
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
-            recognition.continuous = false; // Stop after a single phrase
-            recognition.interimResults = false; // Return final result directly
-            recognition.lang = 'en-US'; // Practice English!
+            recognition.continuous = false;
+            recognition.lang = 'en-US'; // Set to listen in English
+            recognition.interimResults = true;
 
             recognition.onstart = () => {
-                isRecording = true;
-                const micIcon = document.getElementById('micIcon');
-                const micBtn = document.getElementById('micBtn');
-                const overlay = document.getElementById('speechOverlay');
-                
-                micBtn.className = "bg-red-500 text-white border border-red-400 font-semibold p-3 sm:p-3.5 rounded-xl transition-all flex items-center justify-center shadow-lg shrink-0 pulse-recording";
-                micIcon.className = "fa-solid fa-microphone-slash text-base sm:text-lg";
-                overlay.classList.remove('hidden');
-            };
-
-            recognition.onend = () => {
-                isRecording = false;
-                const micIcon = document.getElementById('micIcon');
-                const micBtn = document.getElementById('micBtn');
-                const overlay = document.getElementById('speechOverlay');
-                
-                micBtn.className = "bg-teal-50 text-teal-600 hover:bg-teal-100 border border-teal-200 font-semibold p-3 sm:p-3.5 rounded-xl transition-all flex items-center justify-center shadow-sm shrink-0";
-                micIcon.className = "fa-solid fa-microphone text-base sm:text-lg";
-                overlay.classList.add('hidden');
+                isListening = true;
+                micPulse.classList.remove('hidden');
+                speechPreview.classList.remove('hidden');
+                previewText.innerText = "Sintonizando micrófono...";
+                micBtn.classList.add('bg-red-50', 'text-red-600');
             };
 
             recognition.onresult = (event) => {
-                const speechResult = event.results[0][0].transcript;
-                document.getElementById('userInput').value = speechResult;
+                const transcript = Array.from(event.results)
+                    .map(result => result[0])
+                    .map(result => result.transcript)
+                    .join('');
+                previewText.innerText = transcript;
+                userInput.value = transcript;
             };
 
-            recognition.onerror = (event) => {
-                console.error("Speech recognition error: ", event.error);
-                if (event.error !== 'no-speech') {
-                    showAlert("Microphone Error", "Speech recognition failed: " + event.error, true);
-                }
+            recognition.onerror = (e) => {
+                console.error("Error en reconocimiento:", e);
+                stopListening();
             };
+
+            recognition.onend = () => {
+                stopListening();
+            };
+        } else {
+            micBtn.style.display = 'none'; // Hide mic if not supported
         }
 
-        function toggleSpeechInput() {
-            if (!recognition) {
-                showAlert("No Soportado", "La entrada por voz no está completamente soportada en este navegador. Por favor escribe tus respuestas.", true);
-                return;
-            }
-
-            if (isRecording) {
+        function toggleListening() {
+            if (!recognition) return;
+            if (isListening) {
                 recognition.stop();
             } else {
-                try {
-                    recognition.start();
-                } catch (e) {
-                    console.error("Failed starting recognition: ", e);
+                recognition.start();
+            }
+        }
+
+        function stopListening() {
+            isListening = false;
+            micPulse.classList.add('hidden');
+            speechPreview.classList.add('hidden');
+            micBtn.classList.remove('bg-red-50', 'text-red-600');
+        }
+
+        micBtn.addEventListener('click', toggleListening);
+
+        // Send student message
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Clear Input
+            userInput.value = "";
+            stopListening();
+
+            // Append student message to chat
+            appendMessage(text, 'student');
+            transcriptLog += `Student: ${text}\n`;
+
+            // Prepare history payload
+            chatHistory.push({ role: "user", parts: [{ text: text }] });
+
+            // Proceed stage marker
+            if (conversationStage < 4) {
+                conversationStage++;
+                currentPromptGuide.innerText = stagesInfo[conversationStage];
+            }
+
+            // Get bot response
+            await fetchTeacherResponse();
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+
+        function appendMessage(text, sender) {
+            const msgWrapper = document.createElement('div');
+            msgWrapper.className = `flex gap-2.5 items-start ${sender === 'student' ? 'justify-end' : ''}`;
+            
+            let messageHtml = '';
+            
+            if (sender === 'student') {
+                messageHtml = `
+                    <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none p-3 shadow-sm max-w-[85%]">
+                        <p class="text-sm leading-relaxed">${escapeHtml(text)}</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                        S
+                    </div>
+                `;
+            } else {
+                // Parse correction if present: (Spanish correction) English text
+                let rawText = text;
+                let correction = '';
+                const correctionMatch = text.match(/^\(([^)]+)\)\s*(.*)/);
+                
+                if (correctionMatch) {
+                    correction = correctionMatch[1];
+                    rawText = correctionMatch[2];
+                }
+
+                messageHtml = `
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                        J
+                    </div>
+                    <div class="bg-white border border-slate-100 rounded-2xl rounded-tl-none p-3 shadow-sm max-w-[85%]">
+                        ${correction ? `
+                            <div class="bg-amber-50 border border-amber-100 rounded-xl p-2.5 mb-2 text-xs text-amber-800 flex gap-1.5 items-start">
+                                <i class="fa-solid fa-circle-info mt-0.5 text-amber-500"></i>
+                                <div>
+                                    <strong class="font-semibold block mb-0.5">Tip del Profe:</strong>
+                                    ${escapeHtml(correction)}
+                                </div>
+                            </div>
+                        ` : ''}
+                        <p class="text-sm text-slate-800 leading-relaxed">${escapeHtml(rawText)}</p>
+                        <button onclick="speakText('${escapeHtml(rawText.replace(/'/g, "\\'"))}')" class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 flex items-center gap-1 font-medium transition-all">
+                            <i class="fa-solid fa-volume-high"></i> Escuchar
+                        </button>
+                    </div>
+                `;
+            }
+
+            msgWrapper.innerHTML = messageHtml;
+            chatContainer.appendChild(msgWrapper);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function fetchTeacherResponse() {
+            showStatus("John está pensando...");
+
+            try {
+                // Construct payload using chatHistory with local/canvas fallback credentials
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${FREE_CHAT_MODEL}:generateContent?key=${API_KEY}`;
+                
+                // Construct content array formatted for Gemini API
+                const payload = {
+                    contents: chatHistory.map(h => ({
+                        role: h.role,
+                        parts: h.parts
+                    })),
+                    systemInstruction: {
+                        parts: [{ text: systemInstruction }]
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const botReply = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (botReply) {
+                    appendMessage(botReply, 'john');
+                    transcriptLog += `John: ${botReply}\n\n`;
+                    chatHistory.push({ role: "model", parts: [{ text: botReply }] });
+                    
+                    // Automatically voice the response
+                    speakText(botReply);
+                } else {
+                    throw new Error("Respuesta inválida del servidor");
+                }
+
+            } catch (err) {
+                console.error("Error al conectar con la IA:", err);
+                appendMessage("Oh dear, I had a connection issue. Can you repeat that?", 'john');
+            } finally {
+                hideStatus();
+                
+                // If stage is 4, we wrap up with Google Classroom download options
+                if (conversationStage >= 4) {
+                    congratsSection.classList.remove('hidden');
+                    congratsSection.scrollIntoView({ behavior: 'smooth' });
                 }
             }
         }
 
-        function cancelSpeechInput() {
-            if (recognition && isRecording) {
-                recognition.abort();
-            }
-        }
-
-        // Audio processing functions for Signed PCM 16 bit used in Gemini TTS
+        // Audio conversion logic (PCM16 to WAV)
         function base64ToArrayBuffer(base64) {
-            const binaryString = window.atob(base64);
+            const binaryString = atob(base64);
             const len = binaryString.length;
             const bytes = new Uint8Array(len);
             for (let i = 0; i < len; i++) {
@@ -590,23 +463,35 @@ Follow these rules strictly:
         function pcmToWav(pcm16, sampleRate) {
             const buffer = new ArrayBuffer(44 + pcm16.length * 2);
             const view = new DataView(buffer);
-
-            // Write WAV File Header
-            writeString(view, 0, 'RIFF');
+            
+            // "RIFF"
+            view.setUint32(0, 0x46464952, true);
+            // file length - 8
             view.setUint32(4, 36 + pcm16.length * 2, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
+            // "WAVE"
+            view.setUint32(8, 0x45564157, true);
+            // "fmt " chunk
+            view.setUint32(12, 0x20746d66, true);
+            // chunk size (16)
             view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true); // Linear PCM
-            view.setUint16(22, 1, true); // Mono Channel
+            // sample format (raw)
+            view.setUint16(20, 1, true);
+            // channel count (1)
+            view.setUint16(22, 1, true);
+            // sample rate
             view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true); // Byte rate
-            view.setUint16(32, 2, true); // Block align
-            view.setUint16(34, 16, true); // Bits per sample
-            writeString(view, 36, 'data');
+            // byte rate (sample rate * block align)
+            view.setUint32(28, sampleRate * 2, true);
+            // block align (channel count * bytes per sample)
+            view.setUint16(32, 2, true);
+            // bits per sample
+            view.setUint16(34, 16, true);
+            // "data" chunk
+            view.setUint32(36, 0x61746164, true);
+            // chunk size
             view.setUint32(40, pcm16.length * 2, true);
 
-            // Copy signed integer samples
+            // Write PCM audio samples
             for (let i = 0; i < pcm16.length; i++) {
                 view.setInt16(44 + i * 2, pcm16[i], true);
             }
@@ -614,48 +499,36 @@ Follow these rules strictly:
             return new Blob([view], { type: 'audio/wav' });
         }
 
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
-            }
+        // Clean out parenthetical corrections before voicing text
+        function cleanEnglishText(text) {
+            return text.replace(/\([^)]+\)/g, '').trim();
         }
 
-        // Play speech logic (supports premium Gemini TTS voice or browser fallback)
-        async function speakText(text) {
-            // Filter Spanish tips from audio readout
-            const cleanedText = text.replace(/\([^)]+\)/g, '').trim();
-            const apiKey = apiKeyInput.value.trim();
-
-            if (apiKey !== "") {
+        async function speakText(rawText) {
+            const cleanText = cleanEnglishText(rawText);
+            
+            // If premium Key is stored, fetch premium model TTS with voice Puck
+            if (API_KEY) {
+                showStatus("John está hablando (Premium)...");
                 try {
-                    // Activate Hyper-Realistic Gemini TTS Engine
-                    const selectedVoice = voiceSelect.value;
-                    const speechRate = speechRateInput.value;
-                    const controlPrompt = `Say clearly at speed factor ${speechRate}x: ${cleanedText}`;
-
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${PREMIUM_TTS_MODEL}:generateContent?key=${API_KEY}`;
                     const payload = {
-                        contents: [{ parts: [{ text: controlPrompt }] }],
+                        contents: [{ parts: [{ text: `Say naturally: ${cleanText}` }] }],
                         generationConfig: {
                             responseModalities: ["AUDIO"],
                             speechConfig: {
                                 voiceConfig: {
-                                    prebuiltVoiceConfig: { voiceName: selectedVoice }
+                                    prebuiltVoiceConfig: { voiceName: "Puck" } // Masculine upbeat voice as requested
                                 }
                             }
                         }
                     };
-
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-
-                    if (!response.ok) {
-                        throw new Error("Failed to reach Gemini TTS server");
-                    }
 
                     const result = await response.json();
                     const part = result?.candidates?.[0]?.content?.parts?.[0];
@@ -671,354 +544,90 @@ Follow these rules strictly:
                         
                         const audio = new Audio(audioUrl);
                         audio.play();
-                        return;
                     } else {
-                        throw new Error("No readable raw audio returned.");
+                        throw new Error("Could not construct premium TTS");
                     }
-
                 } catch (e) {
-                    console.warn("Premium Gemini TTS fell back: ", e);
+                    console.warn("Fallo en voz Premium, recurriendo a voz del navegador:", e);
+                    speakWithBrowserSpeech(cleanText);
+                } finally {
+                    hideStatus();
                 }
+            } else {
+                // Free speech synthesis fallback
+                speakWithBrowserSpeech(cleanText);
             }
+        }
 
-            // Fallback: Web Speech API Browser Synthesis
+        function speakWithBrowserSpeech(text) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(cleanedText);
+                const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-US';
-                utterance.rate = parseFloat(speechRateInput.value);
-
+                
+                // Pick a masculine voice if available
                 const voices = window.speechSynthesis.getVoices();
-                const englishVoice = voices.find(voice => voice.lang.startsWith('en') && !voice.name.includes('Google'));
-                if (englishVoice) {
-                    utterance.voice = englishVoice;
-                }
+                const maleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('google us english') || v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david')));
+                if (maleVoice) utterance.voice = maleVoice;
+                
                 window.speechSynthesis.speak(utterance);
-            } else {
-                showAlert("Audio No Soportado", "La reproducción no funciona.", true);
             }
         }
 
-        // Trigger voice loading dynamically
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.getVoices();
+        // Helper to trigger temporary UI feedback messages
+        function showFeedback(text) {
+            const fb = document.createElement('div');
+            fb.className = "fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs px-4 py-2 rounded-full shadow-lg z-50 animate-bounce";
+            fb.innerText = text;
+            document.body.appendChild(fb);
+            setTimeout(() => fb.remove(), 2500);
         }
 
-        function scrollToBottom() {
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        function showStatus(text) {
+            statusText.innerText = text;
+            statusIndicator.classList.remove('hidden');
         }
 
-        // Fetch LLM response
-        async function fetchGeminiResponse() {
-            const apiKey = apiKeyInput.value.trim();
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+        function hideStatus() {
+            statusIndicator.classList.add('hidden');
+        }
 
-            const payload = {
-                contents: chatHistory,
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                }
+        // HTML Escape to prevent injection
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
             };
-
-            const maxRetries = 3;
-            let attempt = 0;
-            let delay = 1000;
-
-            while (attempt < maxRetries) {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.status === 429) {
-                        attempt++;
-                        await new Promise(res => setTimeout(res, delay));
-                        delay *= 2;
-                        continue;
-                    }
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (aiText) {
-                        return aiText;
-                    } else {
-                        throw new Error("No readable response returned.");
-                    }
-
-                } catch (error) {
-                    if (attempt === maxRetries - 1) {
-                        throw error;
-                    }
-                    attempt++;
-                    await new Promise(res => setTimeout(res, delay));
-                    delay *= 2;
-                }
-            }
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
-        // Send message event
-        async function handleSendMessage(event) {
-            event.preventDefault();
-
-            const userInputEl = document.getElementById('userInput');
-            const messageText = userInputEl.value.trim();
-            if (!messageText) return;
-
-            // Stop speech if speaking during send
-            cancelSpeechInput();
-
-            // 1. Render user message
-            appendMessage(messageText, 'user');
-            userInputEl.value = "";
+        // Download transcript as file
+        downloadBtn.addEventListener('click', () => {
+            const finalTranscript = `${transcriptLog}\n------------------------------------------------\nEstatus: EJERCICIO COMPLETADO CON ÉXITO\nFecha: ${new Date().toLocaleDateString()}`;
             
-            // 2. Save history
-            chatHistory.push({ role: "user", parts: [{ text: messageText }] });
-            
-            // 3. Update Checklists
-            updateObjectivesTracker(messageText);
-
-            // 4. Render typing state
-            const loadingId = appendTypingIndicator();
-            scrollToBottom();
-
-            try {
-                // 5. Query Gemini
-                const aiResponse = await fetchGeminiResponse();
-                removeTypingIndicator(loadingId);
-
-                // 6. Append response
-                appendMessage(aiResponse, 'model');
-                chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
-
-                // Try to speak response naturally
-                speakText(aiResponse);
-
-            } catch (err) {
-                console.error("Gemini API error: ", err);
-                removeTypingIndicator(loadingId);
-                appendMessage("Oh no! I had a connection issue. Please tell me again.", 'model');
-            }
-
-            scrollToBottom();
-        }
-
-        // UI Helpers for chat bubbles
-        function appendMessage(text, role) {
-            const chatMessages = document.getElementById('chatMessages');
-            const msgDiv = document.createElement('div');
-            
-            if (role === 'user') {
-                msgDiv.className = "flex justify-end max-w-[90%] sm:max-w-[85%] ml-auto animate-in fade-in slide-in-from-bottom-2 duration-150";
-                msgDiv.innerHTML = `
-                    <div class="bg-gradient-to-tr from-teal-600 to-indigo-600 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-2xl rounded-tr-none shadow-md text-xs sm:text-sm leading-relaxed">
-                        ${escapeHtml(text)}
-                    </div>
-                `;
-            } else {
-                msgDiv.className = "flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-150";
-                const htmlFormatted = formatTeacherMessage(text);
-
-                msgDiv.innerHTML = `
-                    <div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                        J
-                    </div>
-                    <div class="space-y-1 w-full">
-                        <div class="bg-white border border-slate-200/80 px-3 py-2 sm:px-4 sm:py-3 rounded-2xl rounded-tl-none shadow-sm text-slate-700 text-xs sm:text-sm leading-relaxed">
-                            ${htmlFormatted}
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button class="text-teal-600 hover:text-teal-700 text-[10px] sm:text-xs flex items-center gap-1 px-1 py-0.5 rounded transition-colors speak-btn font-medium" title="Escuchar pronunciación">
-                                <i class="fa-solid fa-volume-high"></i> Escuchar
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                msgDiv.querySelector('.speak-btn').addEventListener('click', () => {
-                    speakText(text);
-                });
-            }
-
-            chatMessages.appendChild(msgDiv);
-        }
-
-        // Format Teacher Correction styling
-        function formatTeacherMessage(text) {
-            return escapeHtml(text).replace(/\(([^)]+)\)/g, (match, p1) => {
-                return `<span class="block mt-1 text-[11px] text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-2 py-1 font-medium"><i class="fa-solid fa-wand-magic-sparkles"></i> Tip: ${p1}</span>`;
-            });
-        }
-
-        function appendTypingIndicator() {
-            const chatMessages = document.getElementById('chatMessages');
-            const loadingDiv = document.createElement('div');
-            const id = 'typing-' + Date.now();
-            loadingDiv.id = id;
-            loadingDiv.className = "flex gap-2 sm:gap-3 max-w-[85%]";
-            loadingDiv.innerHTML = `
-                <div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 text-xs font-bold">
-                    J
-                </div>
-                <div class="bg-slate-100 border border-slate-200 px-3 py-2 sm:px-4 sm:py-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
-                    <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-                    <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                    <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                </div>
-            `;
-            chatMessages.appendChild(loadingDiv);
-            return id;
-        }
-
-        function removeTypingIndicator(id) {
-            const indicator = document.getElementById(id);
-            if (indicator) indicator.remove();
-        }
-
-        // Tracker checklists NLP heuristics
-        function updateObjectivesTracker(text) {
-            const lowerText = text.toLowerCase();
-            
-            if (!objectives.name && (lowerText.includes("my name is") || lowerText.includes("i am ") || lowerText.includes("i'm ") || lowerText.includes("me llamo"))) {
-                markObjectiveComplete('name');
-            }
-            if (!objectives.country && (lowerText.includes("from") || lowerText.includes("de ") || lowerText.includes("vivir") || lowerText.includes("soy de"))) {
-                markObjectiveComplete('country');
-            }
-            if (!objectives.age && (lowerText.includes("years old") || lowerText.includes("tengo") || /\b\d{2}\b/.test(lowerText))) {
-                markObjectiveComplete('age');
-            }
-            if (!objectives.job && (lowerText.includes("a ") || lowerText.includes("an ") || lowerText.includes("job") || lowerText.includes("trabajo") || lowerText.includes("soy ") || lowerText.includes("student") || lowerText.includes("teacher") || lowerText.includes("doctor") || lowerText.includes("engineer"))) {
-                markObjectiveComplete('job');
-            }
-        }
-
-        function markObjectiveComplete(key) {
-            objectives[key] = true;
-            const li = document.getElementById(`obj-${key}`);
-            if (li) {
-                li.classList.remove('opacity-60');
-                li.classList.add('opacity-100', 'font-semibold');
-                const check = li.querySelector('.check-icon');
-                check.className = "mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 check-icon shadow-inner animate-bounce";
-                check.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-            }
-
-            const completedCount = Object.values(objectives).filter(Boolean).length;
-            document.getElementById('completionRate').textContent = `${completedCount}/4`;
-
-            // Trigger complete celebration when 4/4 objectives are reached
-            if (completedCount === 4) {
-                document.getElementById('congratulationsBanner').classList.remove('hidden');
-                setTimeout(() => {
-                    showClassroomModal();
-                }, 1500);
-            }
-        }
-
-        // Download Conversation transcript to upload in Classroom
-        function downloadConversation() {
-            let transcript = "==================================================\n";
-            transcript += "        ENGLISH PRACTICE PARTNER REPORT           \n";
-            transcript += "==================================================\n";
-            transcript += `Unit: Unit 1 - Nice to meet you!\n`;
-            transcript += `Date: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n\n`;
-            
-            transcript += "--- CHAT TRANSCRIPT ---\n\n";
-            chatHistory.forEach(msg => {
-                const speaker = msg.role === 'model' ? 'John (Teacher)' : 'Student';
-                transcript += `${speaker}: ${msg.parts[0].text}\n\n`;
-            });
-            
-            transcript += "--- EVALUATION SUMMARY ---\n";
-            transcript += `- Tell your Name: ${objectives.name ? 'COMPLETED ✓' : 'NOT MET ✗'}\n`;
-            transcript += `- Tell your Country: ${objectives.country ? 'COMPLETED ✓' : 'NOT MET ✗'}\n`;
-            transcript += `- Tell your Age: ${objectives.age ? 'COMPLETED ✓' : 'NOT MET ✗'}\n`;
-            transcript += `- Tell your Profession/Job: ${objectives.job ? 'COMPLETED ✓' : 'NOT MET ✗'}\n`;
-            transcript += "==================================================\n";
-            transcript += "INSTRUCTIONS FOR THE STUDENT:\n";
-            transcript += "Upload this generated text file (.txt) to your Google Classroom assignment.\n";
-            transcript += "==================================================\n";
-
-            const blob = new Blob([transcript], { type: 'text/plain;charset=utf-8' });
+            // Generate a virtual blob text file
+            const blob = new Blob([finalTranscript], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
             
-            // Standard formatted file name
-            link.download = `English_A1_Dialogue_Evidence_${new Date().toISOString().slice(0,10)}.txt`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Build temporary download link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Dialogo_Unit1_Ingles_Completo.txt';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        }
-
-        function escapeHtml(string) {
-            return String(string).replace(/[&<>"']/g, function (s) {
-                return {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;'
-                }[s];
-            });
-        }
-
-        // Reset Practice Space
-        function resetPractice() {
-            chatHistory = [
-                { role: "model", parts: [{ text: "Hello! My name is John. What is your name?" }] }
-            ];
-
-            for (let key in objectives) {
-                objectives[key] = false;
-                const li = document.getElementById(`obj-${key}`);
-                if (li) {
-                    li.classList.add('opacity-60');
-                    li.classList.remove('opacity-100', 'font-semibold');
-                    const check = li.querySelector('.check-icon');
-                    check.className = "mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon";
-                    check.innerHTML = '<i class="fa-solid fa-circle"></i>';
-                }
-            }
-
-            document.getElementById('completionRate').textContent = "0/4";
-            document.getElementById('congratulationsBanner').classList.add('hidden');
-
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = `
-                <div class="flex gap-2 sm:gap-3 max-w-[85%]">
-                    <div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                        J
-                    </div>
-                    <div class="space-y-1">
-                        <div class="bg-white border border-slate-200/80 px-3 py-2 sm:px-4 sm:py-3 rounded-2xl rounded-tl-none shadow-sm text-slate-700 text-xs sm:text-sm leading-relaxed">
-                            Hello! My name is John. What is your name?
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="speakText('Hello! My name is John. What is your name?')" class="text-teal-600 hover:text-teal-700 text-xs flex items-center gap-1 px-1 py-0.5 rounded transition-colors font-medium" title="Escuchar pronunciación">
-                                <i class="fa-solid fa-volume-high"></i> Escuchar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
             
-            showAlert("Práctica Reiniciada", "¡Dile tu nombre a John para comenzar de nuevo!");
-        }
+            showFeedback("¡Archivo descargado! Súbelo a Google Classroom");
+        });
 
-        // Initialize Speak welcome
-        window.onload = function() {
-            speakText("Hello! My name is John. What is your name?");
-            updateBadgeState();
+        // Initialize voices on system load
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {};
         }
     </script>
 </body>

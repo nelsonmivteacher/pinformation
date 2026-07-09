@@ -1,634 +1,457 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Practica de Inglés A1 - Unit 1: Nice to meet you!</title>
-    <!-- Tailwind CSS for modern responsive styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons for nice buttons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Custom scrollbar for chat log */
-        .chat-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        .chat-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .chat-scroll::-webkit-scrollbar-thumb {
-            background-color: rgba(156, 163, 175, 0.3);
-            border-radius: 20px;
-        }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+import React, { useState, useEffect, useRef } from 'react';
+import { Settings, Mic, MicOff, Send, Download, CheckCircle, Volume2, Info } from 'lucide-react';
 
-    <!-- Top Header / Bar -->
-    <header class="bg-indigo-600 text-white shadow-md py-4 px-6 sticky top-0 z-50">
-        <div class="max-w-xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold">
-                    👨‍🏫
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold leading-tight">Teacher John</h1>
-                    <p class="text-xs text-indigo-200">A1 Practice • Unit 1</p>
-                </div>
-            </div>
-            
-            <!-- Quick Settings Button (API Key) -->
-            <button id="settingsBtn" class="text-white hover:text-indigo-200 p-2 transition-all" title="Configurar API Key">
-                <i class="fa-solid fa-gear text-xl"></i>
-            </button>
+// Utility functions for converting raw PCM audio from Gemini API to WAV format so the browser can play it.
+function base64ToArrayBuffer(base64) {
+  const binaryString = window.atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+function writeString(view, offset, string) {
+  for (let i = 0; i < string.length; i++) {
+    view.setUint8(offset + i, string.charCodeAt(i));
+  }
+}
+
+function pcmToWav(pcmData, sampleRate) {
+  const numChannels = 1;
+  const bitsPerSample = 16;
+  const blockAlign = numChannels * (bitsPerSample / 8);
+  const byteRate = sampleRate * blockAlign;
+  const dataSize = pcmData.length * 2;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(view, 8, 'WAVE');
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitsPerSample, true);
+  writeString(view, 36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let i = 0; i < pcmData.length; i++, offset += 2) {
+    view.setInt16(offset, pcmData[i], true);
+  }
+
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+export default function App() {
+  const [messages, setMessages] = useState([
+    { role: 'model', text: 'Hello! My name is John. What is your name?' }
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
+  
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_tts_key') || '');
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    // Initialize Speech Recognition for dictation
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          setInputText((prev) => prev + finalTranscript + ' ');
+        }
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setIsRecording(false);
+        showToast("Error con el micrófono. Por favor intenta escribiendo.");
+      };
+    } else {
+      console.warn("Speech recognition not supported in this browser.");
+    }
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isFinished]);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const toggleRecording = () => {
+    if (!recognitionRef.current) {
+      showToast("Tu navegador no soporta dictado por voz.");
+      return;
+    }
+    
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    } else {
+      setInputText(''); // Clear input for new dictation
+      recognitionRef.current.start();
+      setIsRecording(true);
+    }
+  };
+
+  const callChatAPI = async (chatHistory) => {
+    const systemPrompt = `Act as an English teacher for an A1 beginner student. We are practicing a basic introduction dialogue based on the text "Unit 1: Nice to meet you!".
+Your name is John.
+Rules:
+1. Write only one turn at a time.
+2. Use simple A1 vocabulary.
+3. Maximum 2 sentences per response.
+4. CRITICAL: If the student makes a grammatical mistake or spelling error, you MUST correct them gently in Spanish inside parentheses before responding in English. Example: "(Nota: Se dice 'I am 25 years old', no 'I have 25 years')."
+5. Guide the dialogue by asking the student about their: Name -> Country -> Age -> Job, in that order. Wait for their response each time.
+6. Once you have acknowledged their job and the dialogue feels complete, append the exact word [FINISHED] at the very end of your text.`;
+
+    const formattedHistory = chatHistory.map(m => ({
+      role: m.role === 'model' ? 'model' : 'user',
+      parts: [{ text: m.text }]
+    }));
+
+    const payload = {
+      contents: formattedHistory,
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+    };
+
+    // Free Canvas API key proxy for chat
+    const proxyKey = ""; 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${proxyKey}`;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I didn't catch that.";
+  };
+
+  const playTTS = async (text) => {
+    // If user has not provided an API Key, fallback to browser's native text-to-speech
+    if (!apiKey.trim()) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-GB';
+      utterance.rate = 0.9; // A bit slower for A1 student
+      window.speechSynthesis.speak(utterance);
+      return;
+    }
+
+    try {
+      const payload = {
+        contents: [{ parts: [{ text: text }] }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: "Puck" } // Puck requested by user
+            }
+          }
+        },
+        model: "gemini-2.5-flash-preview-tts"
+      };
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      const part = result?.candidates?.[0]?.content?.parts?.[0];
+      const audioData = part?.inlineData?.data;
+      const mimeType = part?.inlineData?.mimeType;
+
+      if (audioData && mimeType && mimeType.startsWith("audio/")) {
+        const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10) || 24000;
+        const pcmData = base64ToArrayBuffer(audioData);
+        const pcm16 = new Int16Array(pcmData);
+        const wavBlob = pcmToWav(pcm16, sampleRate);
+        const audioUrl = URL.createObjectURL(wavBlob);
+        
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        audioRef.current = new Audio(audioUrl);
+        audioRef.current.play();
+      }
+    } catch (error) {
+      console.error("TTS Error:", error);
+      showToast("Error con la voz realista. Verifica tu API Key.");
+    }
+  };
+
+  const handleSend = async () => {
+    if (!inputText.trim() || isLoading) return;
+
+    if (isRecording) {
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+    }
+
+    const newMessages = [...messages, { role: 'user', text: inputText.trim() }];
+    setMessages(newMessages);
+    setInputText('');
+    setIsLoading(true);
+
+    try {
+      let aiResponse = await callChatAPI(newMessages);
+      
+      let chatFinished = false;
+      if (aiResponse.includes('[FINISHED]')) {
+        chatFinished = true;
+        aiResponse = aiResponse.replace('[FINISHED]', '').trim();
+      }
+
+      setMessages(prev => [...prev, { role: 'model', text: aiResponse }]);
+      
+      // Play audio response (only the english parts, filter out spanish corrections for better voice flow)
+      const textToSpeak = aiResponse.replace(/\(.*?\)/g, '').trim(); 
+      if (textToSpeak) {
+        playTTS(textToSpeak);
+      }
+
+      if (chatFinished) {
+        setIsFinished(true);
+      }
+      
+    } catch (error) {
+      console.error(error);
+      showToast("Hubo un error de conexión. Intenta de nuevo.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const downloadTranscript = () => {
+    let transcriptContent = "Unit 1: Nice to meet you! - Practice Transcript\n\n";
+    messages.forEach(m => {
+      const speaker = m.role === 'model' ? 'John (Teacher)' : 'Student';
+      transcriptContent += `${speaker}: ${m.text}\n`;
+    });
+
+    const blob = new Blob([transcriptContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'My_English_Introduction.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast("¡Archivo descargado! Recuerda subirlo a Google Classroom.");
+  };
+
+  const handleSaveSettings = () => {
+    localStorage.setItem('gemini_tts_key', apiKey);
+    setSettingsOpen(false);
+    showToast("Configuración guardada exitosamente.");
+  };
+
+  return (
+    <div className="flex flex-col h-[100dvh] w-full max-w-md mx-auto bg-slate-50 relative overflow-hidden font-sans shadow-xl">
+      
+      {/* Header */}
+      <header className="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md z-10">
+        <div>
+          <h1 className="text-lg font-bold">Unit 1</h1>
+          <p className="text-xs opacity-90">Nice to meet you!</p>
         </div>
-    </header>
+        <button 
+          onClick={() => setSettingsOpen(true)}
+          className="p-2 bg-blue-700 hover:bg-blue-800 rounded-full transition-colors"
+          aria-label="Settings"
+        >
+          <Settings size={20} />
+        </button>
+      </header>
 
-    <!-- API Key Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
-            <button id="closeSettingsBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <h2 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-key text-indigo-500"></i> Configuración de Voz Premium
+      {/* Settings Modal */}
+      {settingsOpen && (
+        <div className="absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+              <Volume2 className="text-blue-600"/> Ajustes de Voz
             </h2>
-            <p class="text-xs text-slate-500 mb-3 leading-relaxed">
-                El chat de texto utiliza inteligencia artificial de forma gratuita. Si deseas activar la voz realista de <strong>Puck (Gemini TTS)</strong>, ingresa tu API Key de Google Gemini.
+            <p className="text-sm text-gray-600 mb-4">
+              Para escuchar a "John" con una voz ultra realista (Puck), ingresa tu API Key de Gemini. Si lo dejas vacío, se usará una voz robótica estándar gratuita.
             </p>
-            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3 mb-4 flex items-start gap-2.5">
-                <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5"></i>
-                <p class="text-xs text-indigo-950 leading-normal">
-                    ¿No tienes una API Key? Puedes obtener una gratis y rápido con tu cuenta de Google ingresando a 
-                    <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-700 underline font-semibold hover:text-indigo-900 inline-flex items-center gap-1">
-                        Google AI Studio <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                    </a>.
-                </p>
+            <input 
+              type="password" 
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="Gemini API Key..."
+              className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            <div className="flex justify-end gap-2">
+              <button 
+                onClick={() => setSettingsOpen(false)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleSaveSettings}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium shadow hover:bg-blue-700 transition"
+              >
+                Guardar
+              </button>
             </div>
-            <div class="mb-4">
-                <label for="apiKeyInput" class="block text-xs font-semibold uppercase text-slate-500 mb-1">Gemini API Key</label>
-                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <button id="saveApiKeyBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-all shadow-md">
-                Guardar Configuración
-            </button>
+          </div>
         </div>
-    </div>
+      )}
 
-    <!-- Main Interactive Container -->
-    <main class="flex-grow max-w-xl w-full mx-auto p-4 flex flex-col justify-between overflow-hidden">
-        
-        <!-- Welcome Dialogue Card (collapsible) -->
-        <div id="dialogueGuide" class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4 transition-all relative">
-            <button onclick="document.getElementById('dialogueGuide').style.display='none'" class="absolute top-2 right-2 text-slate-400 hover:text-indigo-600">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h3 class="text-xs font-bold uppercase text-indigo-700 mb-1">Guía del Diálogo: Unit 1</h3>
-            <p class="text-xs text-indigo-900 leading-relaxed">
-                Practica presentándote con John. Él te preguntará tu <strong>nombre</strong>, tu <strong>país</strong>, tu <strong>edad</strong> y tu <strong>profesión</strong>. Si cometes errores, ¡él te guiará con cariño en español!
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm shadow-lg z-40 animate-fade-in text-center w-max max-w-[90%]">
+          {toastMessage}
+        </div>
+      )}
+
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+        <div className="bg-blue-100 text-blue-800 p-3 rounded-lg text-sm mb-6 flex gap-2 items-start shadow-sm border border-blue-200">
+          <Info size={18} className="shrink-0 mt-0.5" />
+          <p>
+            <strong>Instrucciones:</strong> Escribe o dicta en inglés tus respuestas. "John" te irá preguntando tu nombre, país, edad y profesión. ¡Si te equivocas, él te ayudará!
+          </p>
+        </div>
+
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div 
+              className={`max-w-[85%] p-4 rounded-2xl shadow-sm text-base ${
+                msg.role === 'user' 
+                  ? 'bg-blue-600 text-white rounded-br-none' 
+                  : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
+              }`}
+            >
+              {msg.role === 'model' && (
+                <div className="text-xs font-bold text-gray-400 mb-1 flex items-center gap-1">
+                  John <span className="bg-green-500 w-1.5 h-1.5 rounded-full inline-block"></span>
+                </div>
+              )}
+              {/* Highlight Spanish corrections softly */}
+              {msg.text.split(/(?=\()/).map((part, i) => {
+                if (part.startsWith('(') && part.endsWith(')')) {
+                  return <span key={i} className="block mt-2 text-sm text-amber-600 bg-amber-50 p-2 rounded italic">{part}</span>
+                }
+                return <span key={i}>{part}</span>
+              })}
+            </div>
+          </div>
+        ))}
+
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-white p-4 rounded-2xl rounded-bl-none border border-gray-100 shadow-sm flex space-x-2">
+              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            </div>
+          </div>
+        )}
+
+        {/* Finished State UI */}
+        {isFinished && (
+          <div className="mt-8 p-6 bg-green-50 border border-green-200 rounded-2xl text-center space-y-4 animate-fade-in shadow-sm">
+            <CheckCircle className="mx-auto text-green-500" size={48} />
+            <h3 className="font-bold text-lg text-green-800">¡Práctica Completada!</h3>
+            <p className="text-sm text-green-700">
+              Excelente trabajo. Has terminado la unidad de introducción básica.
             </p>
+            <button 
+              onClick={downloadTranscript}
+              className="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-700 transition active:scale-95"
+            >
+              <Download size={20} />
+              Descargar Tarea
+            </button>
+            <p className="text-xs text-green-600 font-medium">
+              * Recuerda subir este archivo a tu clase en Google Classroom.
+            </p>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </main>
+
+      <footer className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 pb-safe">
+        <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1 shadow-inner">
+          <button 
+            onClick={toggleRecording}
+            className={`p-3 rounded-full transition-all flex-shrink-0 ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-white text-gray-600 hover:bg-gray-200 shadow-sm'}`}
+            disabled={isFinished || isLoading}
+          >
+            {isRecording ? <MicOff size={22} /> : <Mic size={22} />}
+          </button>
+          
+          <input 
+            type="text" 
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            placeholder={isRecording ? "Escuchando..." : "Type or dictate in English..."}
+            className="flex-1 bg-transparent border-none outline-none text-base px-2 py-3 w-full placeholder-gray-400"
+            disabled={isFinished || isLoading}
+          />
+          
+          <button 
+            onClick={handleSend}
+            className={`p-3 rounded-full flex-shrink-0 transition-transform active:scale-90 ${inputText.trim() ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-300 text-gray-500'}`}
+            disabled={!inputText.trim() || isFinished || isLoading}
+          >
+            <Send size={20} className={inputText.trim() ? "ml-1" : ""} />
+          </button>
         </div>
-
-        <!-- Chat Logs container -->
-        <div id="chatContainer" class="flex-grow chat-scroll overflow-y-auto space-y-4 mb-4 flex flex-col pb-4">
-            <!-- Initial static message from John -->
-            <div class="flex gap-2.5 items-start">
-                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                    J
-                </div>
-                <div class="bg-white border border-slate-100 rounded-2xl rounded-tl-none p-3 shadow-sm max-w-[85%]">
-                    <p class="text-sm text-slate-800 leading-relaxed">Hello! My name is John. What is your name?</p>
-                    <button onclick="speakText('Hello! My name is John. What is your name?')" class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 flex items-center gap-1 font-medium transition-all">
-                        <i class="fa-solid fa-volume-high"></i> Escuchar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Status & Listening Indicator -->
-        <div id="statusIndicator" class="hidden text-center text-xs text-indigo-600 font-semibold animate-pulse mb-2 flex items-center justify-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
-            <span id="statusText">John está pensando...</span>
-        </div>
-
-        <!-- Student Input Controls -->
-        <div class="space-y-3 bg-white p-3 rounded-2xl shadow-md border border-slate-100">
-            
-            <!-- Real-time transcription preview when dictating -->
-            <div id="speechPreview" class="hidden text-xs italic text-slate-500 bg-slate-50 p-2 rounded-xl text-center border border-dashed border-slate-200">
-                Escuchando: "<span id="previewText">...</span>"
-            </div>
-
-            <div class="flex items-center gap-2">
-                <!-- Text input -->
-                <input type="text" id="userInput" placeholder="Escribe tu respuesta aquí..." class="flex-grow border border-slate-100 rounded-xl px-4 py-3 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
-                
-                <!-- Dictation / Voice Button -->
-                <button id="micBtn" class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 flex items-center justify-center transition-all relative" title="Dictar respuesta">
-                    <i class="fa-solid fa-microphone text-lg"></i>
-                    <span id="micPulse" class="absolute inset-0 rounded-xl bg-indigo-400/20 animate-ping hidden"></span>
-                </button>
-
-                <!-- Send Button -->
-                <button id="sendBtn" class="w-12 h-12 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 flex items-center justify-center shadow-md transition-all">
-                    <i class="fa-solid fa-paper-plane text-md"></i>
-                </button>
-            </div>
-
-            <!-- Hint for students -->
-            <div class="flex justify-between items-center text-[11px] text-slate-400 px-1">
-                <span>Presiona el 🎙️ para dictar en inglés</span>
-                <span id="currentPromptGuide" class="font-medium text-indigo-500">Fase 1: Di tu nombre</span>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Congratulation Card & Download Action (hidden initially) -->
-    <div id="congratsSection" class="hidden bg-emerald-50 border-t border-emerald-100 p-4 sticky bottom-0 z-40 animate-fade-in shadow-inner">
-        <div class="max-w-xl mx-auto flex flex-col items-center text-center gap-3">
-            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-2xl">
-                🎉
-            </div>
-            <div>
-                <h3 class="text-sm font-bold text-emerald-800">¡Felicidades! Has completado el diálogo</h3>
-                <p class="text-xs text-emerald-600 mt-1 max-w-sm">
-                    Has practicado exitosamente tu presentación. Ahora descarga tu reporte de transcripción y súbelo a tu tarea en Google Classroom.
-                </p>
-            </div>
-            <div class="flex gap-2 w-full">
-                <button id="downloadBtn" class="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-download"></i> Descargar Tarea (TXT)
-                </button>
-                <a href="https://classroom.google.com" target="_blank" class="bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 text-xs font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-graduation-cap"></i> Google Classroom
-                </a>
-            </div>
-        </div>
+      </footer>
+      
+      {/* Basic global styles for animations */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
+      `}} />
     </div>
-
-    <script>
-        // API Configurations
-        let API_KEY = localStorage.getItem('gemini_api_key') || "";
-        const FREE_CHAT_MODEL = "gemini-3-flash-preview";
-        const PREMIUM_TTS_MODEL = "gemini-2.5-flash-preview-tts";
-
-        // Global State variables
-        let chatHistory = [
-            { role: "user", parts: [{ text: "Hello! My name is John. What is your name?" }] }
-        ];
-        
-        // This log tracks human-readable entries for downloading
-        let transcriptLog = "UNIDAD 1: NICE TO MEET YOU! - REPORTE DE DIÁLOGO\n================================================\n\nJohn: Hello! My name is John. What is your name?\n";
-        
-        let conversationStage = 0; // Stages: 0: Name, 1: Country, 2: Age, 3: Job, 4: Finished
-        const stagesInfo = [
-            "Fase 1: Di tu nombre (Sarah o tu nombre real)",
-            "Fase 2: Di de dónde eres (Canadá, etc.)",
-            "Fase 3: Di cuántos años tienes",
-            "Fase 4: Di cuál es tu ocupación",
-            "¡Conversación completada!"
-        ];
-
-        // System prompt directing John to act as an A1 teacher and use standard Spanish corrections inside parenthesis
-        const systemInstruction = `
-You are John, an English teacher interacting with an A1 beginner student.
-Your goal is to practice a basic introduction dialogue based on the text "Unit 1: Nice to meet you!".
-
-Dialogue Flow context (you act as John, student acts as Sarah/themselves):
-- John: Hello! My name is John. What is your name?
-- Sarah: Hi John! I am Sarah. Nice to meet you.
-- John: Nice to meet you too, Sarah. Where are you from?
-- Sarah: I am from Canada. And you?
-- John: I am from London, in the United Kingdom. How old are you?
-- Sarah: I am 25 years old. And you?
-- John: I am 27. What is your job?
-- Sarah: I am a teacher. And you?
-- John: Oh, interesting! I am a doctor.
-
-Strict Rules:
-1. Respond using extremely simple A1 English. Keep your responses short (maximum 2 sentences).
-2. DO NOT write the whole conversation. Wait for the student response and only reply to their latest message.
-3. Keep asking sequentially for: Name -> Country -> Age -> Job, just like the flow.
-4. CORRECTION RULE: If the student makes any grammatical error, spelling mistake or improper formulation in English, gently explain the correction in Spanish inside parentheses at the start of your message, e.g. "(Recuerda que en inglés para decir de dónde eres usamos 'I am from', no 'I from'.) Nice to meet you too! Where are you from?". Then continue the English speech. If there are no errors, do NOT include parentheses.
-5. If the dialogue reaches the final answer (Job is told), wrap up nicely, say goodbye and end.
-        `;
-
-        // Initialize UI Elements
-        const chatContainer = document.getElementById('chatContainer');
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const micBtn = document.getElementById('micBtn');
-        const micPulse = document.getElementById('micPulse');
-        const speechPreview = document.getElementById('speechPreview');
-        const previewText = document.getElementById('previewText');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const statusText = document.getElementById('statusText');
-        const currentPromptGuide = document.getElementById('currentPromptGuide');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const settingsModal = document.getElementById('settingsModal');
-        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-        const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
-        const apiKeyInput = document.getElementById('apiKeyInput');
-        const congratsSection = document.getElementById('congratsSection');
-        const downloadBtn = document.getElementById('downloadBtn');
-
-        // Set API key if present in storage
-        if (API_KEY) {
-            apiKeyInput.value = API_KEY;
-        }
-
-        // Settings Modal events
-        settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
-        closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
-        saveApiKeyBtn.addEventListener('click', () => {
-            API_KEY = apiKeyInput.value.trim();
-            localStorage.setItem('gemini_api_key', API_KEY);
-            settingsModal.classList.add('hidden');
-            showFeedback("Configuración guardada");
-        });
-
-        // Web Speech API - Speech Recognition (Dictation) Setup
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
-        let isListening = false;
-
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'en-US'; // Set to listen in English
-            recognition.interimResults = true;
-
-            recognition.onstart = () => {
-                isListening = true;
-                micPulse.classList.remove('hidden');
-                speechPreview.classList.remove('hidden');
-                previewText.innerText = "Sintonizando micrófono...";
-                micBtn.classList.add('bg-red-50', 'text-red-600');
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = Array.from(event.results)
-                    .map(result => result[0])
-                    .map(result => result.transcript)
-                    .join('');
-                previewText.innerText = transcript;
-                userInput.value = transcript;
-            };
-
-            recognition.onerror = (e) => {
-                console.error("Error en reconocimiento:", e);
-                stopListening();
-            };
-
-            recognition.onend = () => {
-                stopListening();
-            };
-        } else {
-            micBtn.style.display = 'none'; // Hide mic if not supported
-        }
-
-        function toggleListening() {
-            if (!recognition) return;
-            if (isListening) {
-                recognition.stop();
-            } else {
-                recognition.start();
-            }
-        }
-
-        function stopListening() {
-            isListening = false;
-            micPulse.classList.add('hidden');
-            speechPreview.classList.add('hidden');
-            micBtn.classList.remove('bg-red-50', 'text-red-600');
-        }
-
-        micBtn.addEventListener('click', toggleListening);
-
-        // Send student message
-        async function handleSend() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            // Clear Input
-            userInput.value = "";
-            stopListening();
-
-            // Append student message to chat
-            appendMessage(text, 'student');
-            transcriptLog += `Student: ${text}\n`;
-
-            // Prepare history payload
-            chatHistory.push({ role: "user", parts: [{ text: text }] });
-
-            // Proceed stage marker
-            if (conversationStage < 4) {
-                conversationStage++;
-                currentPromptGuide.innerText = stagesInfo[conversationStage];
-            }
-
-            // Get bot response
-            await fetchTeacherResponse();
-        }
-
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSend();
-        });
-
-        function appendMessage(text, sender) {
-            const msgWrapper = document.createElement('div');
-            msgWrapper.className = `flex gap-2.5 items-start ${sender === 'student' ? 'justify-end' : ''}`;
-            
-            let messageHtml = '';
-            
-            if (sender === 'student') {
-                messageHtml = `
-                    <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none p-3 shadow-sm max-w-[85%]">
-                        <p class="text-sm leading-relaxed">${escapeHtml(text)}</p>
-                    </div>
-                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                        S
-                    </div>
-                `;
-            } else {
-                // Parse correction if present: (Spanish correction) English text
-                let rawText = text;
-                let correction = '';
-                const correctionMatch = text.match(/^\(([^)]+)\)\s*(.*)/);
-                
-                if (correctionMatch) {
-                    correction = correctionMatch[1];
-                    rawText = correctionMatch[2];
-                }
-
-                messageHtml = `
-                    <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                        J
-                    </div>
-                    <div class="bg-white border border-slate-100 rounded-2xl rounded-tl-none p-3 shadow-sm max-w-[85%]">
-                        ${correction ? `
-                            <div class="bg-amber-50 border border-amber-100 rounded-xl p-2.5 mb-2 text-xs text-amber-800 flex gap-1.5 items-start">
-                                <i class="fa-solid fa-circle-info mt-0.5 text-amber-500"></i>
-                                <div>
-                                    <strong class="font-semibold block mb-0.5">Tip del Profe:</strong>
-                                    ${escapeHtml(correction)}
-                                </div>
-                            </div>
-                        ` : ''}
-                        <p class="text-sm text-slate-800 leading-relaxed">${escapeHtml(rawText)}</p>
-                        <button onclick="speakText('${escapeHtml(rawText.replace(/'/g, "\\'"))}')" class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 flex items-center gap-1 font-medium transition-all">
-                            <i class="fa-solid fa-volume-high"></i> Escuchar
-                        </button>
-                    </div>
-                `;
-            }
-
-            msgWrapper.innerHTML = messageHtml;
-            chatContainer.appendChild(msgWrapper);
-            
-            // Scroll to bottom
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        async function fetchTeacherResponse() {
-            showStatus("John está pensando...");
-
-            try {
-                // Construct payload using chatHistory with local/canvas fallback credentials
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${FREE_CHAT_MODEL}:generateContent?key=${API_KEY}`;
-                
-                // Construct content array formatted for Gemini API
-                const payload = {
-                    contents: chatHistory.map(h => ({
-                        role: h.role,
-                        parts: h.parts
-                    })),
-                    systemInstruction: {
-                        parts: [{ text: systemInstruction }]
-                    }
-                };
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                const botReply = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                if (botReply) {
-                    appendMessage(botReply, 'john');
-                    transcriptLog += `John: ${botReply}\n\n`;
-                    chatHistory.push({ role: "model", parts: [{ text: botReply }] });
-                    
-                    // Automatically voice the response
-                    speakText(botReply);
-                } else {
-                    throw new Error("Respuesta inválida del servidor");
-                }
-
-            } catch (err) {
-                console.error("Error al conectar con la IA:", err);
-                appendMessage("Oh dear, I had a connection issue. Can you repeat that?", 'john');
-            } finally {
-                hideStatus();
-                
-                // If stage is 4, we wrap up with Google Classroom download options
-                if (conversationStage >= 4) {
-                    congratsSection.classList.remove('hidden');
-                    congratsSection.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        }
-
-        // Audio conversion logic (PCM16 to WAV)
-        function base64ToArrayBuffer(base64) {
-            const binaryString = atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        function pcmToWav(pcm16, sampleRate) {
-            const buffer = new ArrayBuffer(44 + pcm16.length * 2);
-            const view = new DataView(buffer);
-            
-            // "RIFF"
-            view.setUint32(0, 0x46464952, true);
-            // file length - 8
-            view.setUint32(4, 36 + pcm16.length * 2, true);
-            // "WAVE"
-            view.setUint32(8, 0x45564157, true);
-            // "fmt " chunk
-            view.setUint32(12, 0x20746d66, true);
-            // chunk size (16)
-            view.setUint32(16, 16, true);
-            // sample format (raw)
-            view.setUint16(20, 1, true);
-            // channel count (1)
-            view.setUint16(22, 1, true);
-            // sample rate
-            view.setUint32(24, sampleRate, true);
-            // byte rate (sample rate * block align)
-            view.setUint32(28, sampleRate * 2, true);
-            // block align (channel count * bytes per sample)
-            view.setUint16(32, 2, true);
-            // bits per sample
-            view.setUint16(34, 16, true);
-            // "data" chunk
-            view.setUint32(36, 0x61746164, true);
-            // chunk size
-            view.setUint32(40, pcm16.length * 2, true);
-
-            // Write PCM audio samples
-            for (let i = 0; i < pcm16.length; i++) {
-                view.setInt16(44 + i * 2, pcm16[i], true);
-            }
-
-            return new Blob([view], { type: 'audio/wav' });
-        }
-
-        // Clean out parenthetical corrections before voicing text
-        function cleanEnglishText(text) {
-            return text.replace(/\([^)]+\)/g, '').trim();
-        }
-
-        async function speakText(rawText) {
-            const cleanText = cleanEnglishText(rawText);
-            
-            // If premium Key is stored, fetch premium model TTS with voice Puck
-            if (API_KEY) {
-                showStatus("John está hablando (Premium)...");
-                try {
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${PREMIUM_TTS_MODEL}:generateContent?key=${API_KEY}`;
-                    const payload = {
-                        contents: [{ parts: [{ text: `Say naturally: ${cleanText}` }] }],
-                        generationConfig: {
-                            responseModalities: ["AUDIO"],
-                            speechConfig: {
-                                voiceConfig: {
-                                    prebuiltVoiceConfig: { voiceName: "Puck" } // Masculine upbeat voice as requested
-                                }
-                            }
-                        }
-                    };
-
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    const result = await response.json();
-                    const part = result?.candidates?.[0]?.content?.parts?.[0];
-                    const audioData = part?.inlineData?.data;
-                    const mimeType = part?.inlineData?.mimeType;
-
-                    if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                        const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
-                        const pcmData = base64ToArrayBuffer(audioData);
-                        const pcm16 = new Int16Array(pcmData);
-                        const wavBlob = pcmToWav(pcm16, sampleRate);
-                        const audioUrl = URL.createObjectURL(wavBlob);
-                        
-                        const audio = new Audio(audioUrl);
-                        audio.play();
-                    } else {
-                        throw new Error("Could not construct premium TTS");
-                    }
-                } catch (e) {
-                    console.warn("Fallo en voz Premium, recurriendo a voz del navegador:", e);
-                    speakWithBrowserSpeech(cleanText);
-                } finally {
-                    hideStatus();
-                }
-            } else {
-                // Free speech synthesis fallback
-                speakWithBrowserSpeech(cleanText);
-            }
-        }
-
-        function speakWithBrowserSpeech(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                
-                // Pick a masculine voice if available
-                const voices = window.speechSynthesis.getVoices();
-                const maleVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('google us english') || v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david')));
-                if (maleVoice) utterance.voice = maleVoice;
-                
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        // Helper to trigger temporary UI feedback messages
-        function showFeedback(text) {
-            const fb = document.createElement('div');
-            fb.className = "fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs px-4 py-2 rounded-full shadow-lg z-50 animate-bounce";
-            fb.innerText = text;
-            document.body.appendChild(fb);
-            setTimeout(() => fb.remove(), 2500);
-        }
-
-        function showStatus(text) {
-            statusText.innerText = text;
-            statusIndicator.classList.remove('hidden');
-        }
-
-        function hideStatus() {
-            statusIndicator.classList.add('hidden');
-        }
-
-        // HTML Escape to prevent injection
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
-
-        // Download transcript as file
-        downloadBtn.addEventListener('click', () => {
-            const finalTranscript = `${transcriptLog}\n------------------------------------------------\nEstatus: EJERCICIO COMPLETADO CON ÉXITO\nFecha: ${new Date().toLocaleDateString()}`;
-            
-            // Generate a virtual blob text file
-            const blob = new Blob([finalTranscript], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            
-            // Build temporary download link
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'Dialogo_Unit1_Ingles_Completo.txt';
-            document.body.appendChild(a);
-            a.click();
-            
-            // Clean up
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showFeedback("¡Archivo descargado! Súbelo a Google Classroom");
-        });
-
-        // Initialize voices on system load
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => {};
-        }
-    </script>
-</body>
-</html>
+  );
+}

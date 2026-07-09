@@ -713,11 +713,11 @@ Follow these rules strictly:
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Fetch LLM response
+        // Fetch LLM response (Optimized: single call for Text + Audio content)
         async function fetchGeminiResponse() {
             const apiKey = apiKeyInput.value.trim();
-            // Use gemini-3-flash-preview for text generation
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            // Using the fast, highly capable gemini-2.5-flash model
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
             const payload = {
                 contents: chatHistory,
@@ -725,6 +725,18 @@ Follow these rules strictly:
                     parts: [{ text: systemPrompt }]
                 }
             };
+
+            // Request BOTH modalities to avoid a second API roundtrip
+            if (apiKey !== "") {
+                payload.generationConfig = {
+                    responseModalities: ["TEXT", "AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: "Puck" }
+                        }
+                    }
+                };
+            }
 
             const maxRetries = 3;
             let attempt = 0;
@@ -750,10 +762,23 @@ Follow these rules strictly:
                     }
 
                     const result = await response.json();
-                    const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    const parts = result.candidates?.[0]?.content?.parts;
                     
-                    if (aiText) {
-                        return aiText;
+                    if (parts && parts.length > 0) {
+                        let text = "";
+                        let audioData = null;
+                        let mimeType = null;
+
+                        for (const part of parts) {
+                            if (part.text) {
+                                text = part.text;
+                            } else if (part.inlineData) {
+                                audioData = part.inlineData.data;
+                                mimeType = part.inlineData.mimeType;
+                            }
+                        }
+
+                        return { text, audioData, mimeType };
                     } else {
                         throw new Error("No readable response returned.");
                     }
@@ -795,16 +820,23 @@ Follow these rules strictly:
             scrollToBottom();
 
             try {
-                // 5. Query Gemini
-                const aiResponse = await fetchGeminiResponse();
+                // 5. Query Gemini (Fast single round-trip for Text & Audio)
+                const result = await fetchGeminiResponse();
                 removeTypingIndicator(loadingId);
+
+                const aiResponse = result.text;
 
                 // 6. Append response
                 appendMessage(aiResponse, 'model');
+                // Store only text in context history to prevent token bloat
                 chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
 
-                // Try to speak response naturally
-                speakText(aiResponse);
+                // Play the pre-fetched premium audio instantly or run standard TTS fallback
+                if (result.audioData && result.mimeType) {
+                    playPcmAudio(result.audioData, result.mimeType);
+                } else {
+                    speakText(aiResponse);
+                }
 
             } catch (err) {
                 console.error("Gemini API error: ", err);

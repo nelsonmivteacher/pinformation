@@ -440,8 +440,7 @@ Follow these rules strictly:
         // Accordion toggle helper for mobile layout Optimization
         function toggleSection(contentId, chevronId) {
             // Only toggle on mobile screens (< 1024px)
-            const isLargeScreen = window.innerWidth >= 1024;
-            if (isLargeScreen) return;
+            if (window.innerWidth >= 1024) return;
             
             const content = document.getElementById(contentId);
             const chevron = document.getElementById(chevronId);
@@ -640,10 +639,10 @@ Follow these rules strictly:
 
             if (apiKey !== "") {
                 try {
-                    // Activate Hyper-Realistic Gemini TTS Engine using updated gemini-3.1-flash-tts-preview model
+                    // Activate Hyper-Realistic Gemini TTS Engine using optimized model
                     const selectedVoice = voiceSelect.value;
                     const speechRate = speechRateInput.value;
-                    const controlPrompt = cleanedText;
+                    const controlPrompt = `Say clearly: ${cleanedText}`;
 
                     const payload = {
                         contents: [{ parts: [{ text: controlPrompt }] }],
@@ -657,7 +656,7 @@ Follow these rules strictly:
                         }
                     };
 
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-tts-preview:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -1023,10 +1022,7 @@ Follow these rules strictly:
 
         // Initialize Speak welcome
         window.onload = function() {
-            // Safe execution of welcome speech to bypass mobile autoplay blocks
-            setTimeout(() => {
-                speakText("Hello! My name is John. What is your name?");
-            }, 800);
+            speakText("Hello! My name is John. What is your name?");
             updateBadgeState();
         }
     </script>

@@ -2,609 +2,677 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Unit 1: Nice to meet you!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A1 English Practice - Nice to meet you!</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            margin: 0;
-            padding: 0;
-            /* Prevents pull-to-refresh on mobile */
-            overscroll-behavior-y: none; 
         }
-
-        .h-dvh {
-            height: 100vh; /* Fallback */
-            height: 100dvh;
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
         }
-
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom, 1rem);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-
-        .typing-dot {
-            animation: typing 1.4s infinite ease-in-out;
-            border-radius: 50%;
-        }
-        .typing-dot:nth-child(1) { animation-delay: 0s; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typing {
-            0%, 100% { transform: translateY(0); opacity: 0.5; }
-            50% { transform: translateY(-4px); opacity: 1; }
-        }
-
-        /* Hide scrollbar for chat area for a cleaner look */
-        #chat-container::-webkit-scrollbar {
+        /* Custom Scrollbar for Chat */
+        .chat-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
-        #chat-container::-webkit-scrollbar-thumb {
+        .chat-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-scrollbar::-webkit-scrollbar-thumb {
             background-color: #cbd5e1;
             border-radius: 10px;
         }
     </style>
 </head>
-<body>
-    <div class="flex flex-col h-dvh w-full max-w-md mx-auto bg-slate-50 relative overflow-hidden shadow-xl">
-        
-        <!-- Header -->
-        <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md z-10 shrink-0">
-            <div>
-                <h1 class="text-lg font-bold">Unit 1</h1>
-                <p class="text-xs opacity-90">Nice to meet you!</p>
-            </div>
-            <button id="btn-settings" class="p-2 bg-blue-700 hover:bg-blue-800 rounded-full transition-colors" aria-label="Settings">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            </button>
-        </header>
+<body class="bg-slate-50 min-h-screen flex flex-col">
 
-        <!-- Main Chat Area -->
-        <main id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
-            <!-- Instructions -->
-            <div class="bg-blue-100 text-blue-800 p-3 rounded-xl text-sm mb-6 flex gap-2 items-start shadow-sm border border-blue-200">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5 text-blue-600"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                <p>
-                    <strong>Instrucciones:</strong> Escribe o dicta en inglés tus respuestas. "John" te irá preguntando tu nombre, país, edad y profesión. ¡Si te equivocas, él te ayudará!
-                </p>
-            </div>
-
-            <div id="messages-wrapper" class="space-y-4">
-                <!-- Messages will be injected here via JS -->
-            </div>
-
-            <!-- Loading Indicator -->
-            <div id="loading-indicator" class="hidden justify-start">
-                <div class="bg-white p-4 rounded-2xl rounded-bl-none border border-gray-100 shadow-sm flex space-x-2 items-center">
-                    <div class="w-2 h-2 bg-gray-400 typing-dot"></div>
-                    <div class="w-2 h-2 bg-gray-400 typing-dot"></div>
-                    <div class="w-2 h-2 bg-gray-400 typing-dot"></div>
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-teal-600 to-cyan-700 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white text-teal-700 p-2.5 rounded-xl shadow-inner">
+                    <i class="fa-solid fa-comments-question text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight">English Practice Partner</h1>
+                    <p class="text-xs text-teal-100">Unit 1: Nice to meet you! (Level A1)</p>
                 </div>
             </div>
-
-            <!-- Finished State UI -->
-            <div id="finished-state" class="hidden mt-8 p-6 bg-green-50 border border-green-200 rounded-2xl text-center space-y-4 animate-fade-in shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                <h3 class="font-bold text-lg text-green-800">¡Práctica Completada!</h3>
-                <p class="text-sm text-green-700">Excelente trabajo. Has terminado la unidad de introducción básica.</p>
-                <button id="btn-download" class="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-700 transition active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Descargar Tarea
-                </button>
-                <p class="text-xs text-green-600 font-medium">* Recuerda subir este archivo a tu clase en Google Classroom.</p>
-            </div>
-            <!-- Empty div for scrolling to bottom -->
-            <div id="scroll-anchor"></div>
-        </main>
-
-        <!-- Footer Input Area -->
-        <footer class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 pb-safe shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-            <div class="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1 shadow-inner">
-                <button id="btn-mic" class="p-3 rounded-full transition-all flex-shrink-0 bg-white text-gray-600 hover:bg-gray-200 shadow-sm">
-                    <!-- Default Mic Icon -->
-                    <svg id="icon-mic" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
-                    <!-- Mic Off Icon (Hidden by default) -->
-                    <svg id="icon-mic-off" class="hidden" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
-                </button>
-                
-                <input type="text" id="input-text" placeholder="Type or dictate in English..." class="flex-1 bg-transparent border-none outline-none text-base px-2 py-3 w-full placeholder-gray-400" autocomplete="off" />
-                
-                <button id="btn-send" class="p-3 rounded-full flex-shrink-0 transition-transform active:scale-90 bg-gray-300 text-gray-500" disabled>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                </button>
-            </div>
-        </footer>
-
-        <!-- Settings Modal -->
-        <div id="modal-settings" class="hidden absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-            <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-fade-in">
-                <h2 class="text-xl font-bold mb-2 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-                    Ajustes de Voz Premium
-                </h2>
-                <p class="text-sm text-gray-600 mb-4 leading-relaxed">
-                    Para escuchar a "John" con una voz ultra realista (Puck), ingresa tu API Key de Gemini. Si lo dejas vacío, se usará una voz robótica estándar gratuita.
-                </p>
-                <input type="password" id="input-api-key" placeholder="Pegar Gemini API Key aquí..." class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
-                <div class="flex justify-end gap-2">
-                    <button id="btn-close-settings" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition">Cancelar</button>
-                    <button id="btn-save-settings" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium shadow hover:bg-blue-700 transition">Guardar</button>
-                </div>
+            
+            <!-- Key Configuration Block (Uses platform's automatic fallback if empty) -->
+            <div class="flex items-center gap-2 bg-teal-800/40 px-3 py-1.5 rounded-lg border border-teal-500/30 w-full sm:w-auto">
+                <i class="fa-solid fa-key text-xs text-teal-300"></i>
+                <input type="password" id="apiKeyInput" placeholder="API Key (Opcional - Auto)" 
+                    class="bg-transparent text-xs text-white placeholder-teal-300/70 focus:outline-none w-full sm:w-40" />
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
             </div>
         </div>
+    </header>
 
-        <!-- Toast Notification -->
-        <div id="toast" class="hidden absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-5 py-3 rounded-full text-sm shadow-lg z-40 animate-fade-in text-center w-max max-w-[90%] pointer-events-none">
-            <!-- Toast message here -->
+    <!-- Main Workspace Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Side: Reference Dialogue & Goal Checklist (Takes 4 cols on large screens) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            
+            <!-- Reference Dialogue -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5">
+                <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+                    <i class="fa-solid fa-book-open text-teal-600"></i>
+                    <h2 class="font-semibold text-slate-800">Guía de Diálogo (Unit 1)</h2>
+                </div>
+                
+                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                    Usa esta conversación como guía mientras chateas con John. ¡Intenta responder con tus propios datos reales!
+                </p>
+
+                <div class="space-y-3 max-h-[280px] overflow-y-auto chat-scrollbar text-sm">
+                    <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
+                        <span class="font-bold text-teal-800 block text-xs">John:</span>
+                        "Hello! My name is John. What is your name?"
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-50 border-l-4 border-slate-300">
+                        <span class="font-bold text-slate-700 block text-xs">Sarah (Tú):</span>
+                        "Hi John! I am Sarah. Nice to meet you."
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
+                        <span class="font-bold text-teal-800 block text-xs">John:</span>
+                        "Nice to meet you too, Sarah. Where are you from?"
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-50 border-l-4 border-slate-300">
+                        <span class="font-bold text-slate-700 block text-xs">Sarah (Tú):</span>
+                        "I am from Canada. And you?"
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
+                        <span class="font-bold text-teal-800 block text-xs">John:</span>
+                        "I am from London, in the United Kingdom. How old are you?"
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-50 border-l-4 border-slate-300">
+                        <span class="font-bold text-slate-700 block text-xs">Sarah (Tú):</span>
+                        "I am 25 years old. And you?"
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
+                        <span class="font-bold text-teal-800 block text-xs">John:</span>
+                        "I am 27. What is your job?"
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-50 border-l-4 border-slate-300">
+                        <span class="font-bold text-slate-700 block text-xs">Sarah (Tú):</span>
+                        "I am a teacher. And you?"
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-teal-50/60 border-l-4 border-teal-500">
+                        <span class="font-bold text-teal-800 block text-xs">John:</span>
+                        "Oh, interesting! I am a doctor."
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice Tracker Checklist -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-indigo-600"></i>
+                        <h2 class="font-semibold text-slate-800">Objetivos de Práctica</h2>
+                    </div>
+                    <span id="completionRate" class="text-xs font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">0/4</span>
+                </div>
+
+                <ul class="space-y-3.5" id="objectivesList">
+                    <li class="flex items-start gap-3 text-sm text-slate-600 transition-all duration-300 opacity-60" id="obj-name">
+                        <span class="mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon">
+                            <i class="fa-solid fa-circle"></i>
+                        </span>
+                        <div>
+                            <span class="font-medium block text-slate-800">Decir tu Nombre</span>
+                            <span class="text-xs text-slate-400">Example: "My name is Maria."</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-slate-600 transition-all duration-300 opacity-60" id="obj-country">
+                        <span class="mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon">
+                            <i class="fa-solid fa-circle"></i>
+                        </span>
+                        <div>
+                            <span class="font-medium block text-slate-800">Decir tu País de Origen</span>
+                            <span class="text-xs text-slate-400">Example: "I am from Mexico."</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-slate-600 transition-all duration-300 opacity-60" id="obj-age">
+                        <span class="mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon">
+                            <i class="fa-solid fa-circle"></i>
+                        </span>
+                        <div>
+                            <span class="font-medium block text-slate-800">Mencionar tu Edad</span>
+                            <span class="text-xs text-slate-400">Example: "I am 18 years old."</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-slate-600 transition-all duration-300 opacity-60" id="obj-job">
+                        <span class="mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon">
+                            <i class="fa-solid fa-circle"></i>
+                        </span>
+                        <div>
+                            <span class="font-medium block text-slate-800">Compartir tu Profesión</span>
+                            <span class="text-xs text-slate-400">Example: "I am a student."</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Right Side: Chat & Interactive Elements (Takes 8 cols on large screens) -->
+        <section class="lg:col-span-8 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden h-[600px] sm:h-[650px]">
+            
+            <!-- Chat Partner Title & Speech Speed Controls -->
+            <div class="bg-slate-50 border-b border-slate-200/80 px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                            J
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white"></div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-slate-800 leading-tight">Chat con John</h3>
+                        <span class="text-xs text-slate-500 flex items-center gap-1">
+                            <i class="fa-solid fa-shield-halved text-teal-600"></i> Tu tutor de inglés inteligente
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Text-To-Speech Settings -->
+                <div class="flex items-center gap-3 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm text-xs">
+                    <span class="text-slate-500 font-medium flex items-center gap-1">
+                        <i class="fa-solid fa-volume-high text-teal-600"></i> Velocidad:
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <input type="range" id="speechRate" min="0.5" max="1.2" step="0.1" value="0.8" 
+                            class="w-20 sm:w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600" />
+                        <span id="rateValue" class="text-slate-700 font-bold min-w-[24px]">0.8x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Message Window -->
+            <div id="chatMessages" class="flex-1 p-6 overflow-y-auto space-y-4 chat-scrollbar bg-slate-50/50">
+                <!-- Initial Welcome Message from John is hardcoded to prevent early API latency -->
+                <div class="flex gap-3 max-w-[85%]">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                        J
+                    </div>
+                    <div class="space-y-1">
+                        <div class="bg-white border border-slate-200/80 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-slate-700 text-sm leading-relaxed relative">
+                            Hello! My name is John. What is your name?
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="speakText('Hello! My name is John. What is your name?')" class="text-teal-600 hover:text-teal-700 text-xs flex items-center gap-1 px-1 py-0.5 rounded transition-colors" title="Escuchar pronunciación">
+                                <i class="fa-solid fa-volume-high"></i> Escuchar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Helper Answer Chips (Scaffolding for A1) -->
+            <div class="bg-slate-50 border-t border-slate-150 px-4 py-2.5 flex flex-wrap items-center gap-2 overflow-x-auto whitespace-nowrap">
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400 mr-1"><i class="fa-solid fa-lightbulb"></i> Ayuda:</span>
+                <button onclick="useChip('My name is ')" class="text-xs bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-700 px-3 py-1.5 rounded-full transition-all shadow-sm">
+                    My name is...
+                </button>
+                <button onclick="useChip('I am from ')" class="text-xs bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-700 px-3 py-1.5 rounded-full transition-all shadow-sm">
+                    I am from...
+                </button>
+                <button onclick="useChip('I am ')" class="text-xs bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-700 px-3 py-1.5 rounded-full transition-all shadow-sm">
+                    I am [age] years old...
+                </button>
+                <button onclick="useChip('I am a student')" class="text-xs bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 text-slate-600 hover:text-teal-700 px-3 py-1.5 rounded-full transition-all shadow-sm">
+                    I am a student.
+                </button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 border-t border-slate-200 bg-white">
+                <form id="chatForm" onsubmit="handleSendMessage(event)" class="flex gap-2">
+                    <input type="text" id="userInput" placeholder="Escribe tu respuesta en inglés aquí..." autocomplete="off"
+                        class="flex-1 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition-all text-slate-700" />
+                    
+                    <button type="submit" id="sendBtn" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                        <span>Enviar</span>
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+                
+                <!-- Reset Board / Controls -->
+                <div class="flex justify-between items-center mt-3 text-xs text-slate-400">
+                    <span>Recuerda usar oraciones simples en inglés.</span>
+                    <button onclick="resetPractice()" class="text-red-500 hover:text-red-600 font-medium transition-colors flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Práctica
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Simple Custom Modal for Alerts (Avoids alert()) -->
+    <div id="customModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 m-4 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center gap-3 text-amber-600 mb-3" id="modalHeader">
+                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                <h3 class="font-bold text-lg text-slate-800" id="modalTitle">Atención</h3>
+            </div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6" id="modalMessage">
+                Mensaje de aviso predeterminado.
+            </p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors">
+                    Aceptar
+                </button>
+            </div>
         </div>
     </div>
 
+    <!-- Application Logic & Gemini API Handler -->
     <script>
-        // State variables
-        let messages = [
-            { role: 'model', text: 'Hello! My name is John. What is your name?' }
+        // System Prompt defining rules strictly to avoid alignment issues
+        const systemPrompt = `Act as an English teacher for an A1 beginner student. We are going to practice a basic introduction dialogue based on the text "Unit 1: Nice to meet you!".
+
+Follow these rules strictly:
+1. You are John. You are friendly, patient, and motivating.
+2. Start the conversation by saying: "Hello! My name is John. What is your name?" (This has been sent already in the UI. Proceed with the logic immediately).
+3. Wait for the student's response. Do not write the whole conversation at once. Write only one turn at a time.
+4. Use simple A1 vocabulary.
+5. Keep your responses short (maximum 2 sentences).
+6. Correction rule: If the user makes a grammatical mistake, gently correct them in Spanish inside parentheses (like this in Spanish), and then continue the conversation in English.
+7. Ask about their name, country, age, and job, just like the original text. Maintain a logical order.
+8. Once all 4 topics (Name, Country, Age, Job) are discussed, congratulate them warmly in English and say they completed Unit 1 successfully.`;
+
+        // Chat state
+        let chatHistory = [
+            { role: "model", parts: [{ text: "Hello! My name is John. What is your name?" }] }
         ];
-        let isRecording = false;
-        let isLoading = false;
-        let isFinished = false;
-        let currentAudio = null;
-        let speechRecognition = null;
 
-        // DOM Elements
-        const chatContainer = document.getElementById('chat-container');
-        const messagesWrapper = document.getElementById('messages-wrapper');
-        const scrollAnchor = document.getElementById('scroll-anchor');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const finishedState = document.getElementById('finished-state');
-        
-        const inputText = document.getElementById('input-text');
-        const btnSend = document.getElementById('btn-send');
-        const btnMic = document.getElementById('btn-mic');
-        const iconMic = document.getElementById('icon-mic');
-        const iconMicOff = document.getElementById('icon-mic-off');
-        
-        const modalSettings = document.getElementById('modal-settings');
-        const inputApiKey = document.getElementById('input-api-key');
-        const btnSettings = document.getElementById('btn-settings');
-        const btnCloseSettings = document.getElementById('btn-close-settings');
-        const btnSaveSettings = document.getElementById('btn-save-settings');
-        const btnDownload = document.getElementById('btn-download');
-        
-        const toast = document.getElementById('toast');
+        // Track objectives
+        const objectives = {
+            name: false,
+            country: false,
+            age: false,
+            job: false
+        };
 
-        // Setup Initial View
-        inputApiKey.value = localStorage.getItem('gemini_tts_key') || '';
-        renderMessages();
+        // TTS setup
+        const speechRateInput = document.getElementById('speechRate');
+        const rateValueLabel = document.getElementById('rateValue');
 
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 4000);
+        speechRateInput.addEventListener('input', (e) => {
+            rateValueLabel.textContent = `${e.target.value}x`;
+        });
+
+        // Use helper chips
+        function useChip(text) {
+            const userInput = document.getElementById('userInput');
+            userInput.value = text;
+            userInput.focus();
         }
 
+        // Show Custom Alert
+        function showAlert(title, message, isError = false) {
+            const modal = document.getElementById('customModal');
+            const modalHeader = document.getElementById('modalHeader');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            if (isError) {
+                modalHeader.innerHTML = '<i class="fa-solid fa-circle-exclamation text-2xl text-red-500"></i>';
+                modalTitle.className = "font-bold text-lg text-slate-800";
+            } else {
+                modalHeader.innerHTML = '<i class="fa-solid fa-circle-info text-2xl text-teal-500"></i>';
+                modalTitle.className = "font-bold text-lg text-slate-800";
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Web Speech API Synthesis (TTS)
+        function speakText(text) {
+            // Remove Spanish correction comments so TTS reads only pure English
+            const cleanedText = text.replace(/\([^)]+\)/g, '').trim();
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Cancel currently playing
+                const utterance = new SpeechSynthesisUtterance(cleanedText);
+                utterance.lang = 'en-US';
+                
+                // Fetch user selected speed
+                const speed = parseFloat(speechRateInput.value);
+                utterance.rate = speed;
+
+                // Attempt to find a native English voice
+                const voices = window.speechSynthesis.getVoices();
+                const englishVoice = voices.find(voice => voice.lang.startsWith('en') && !voice.name.includes('Google'));
+                if (englishVoice) {
+                    utterance.voice = englishVoice;
+                }
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showAlert("Audio No Soportado", "La síntesis de voz no está soportada en este navegador.", true);
+            }
+        }
+
+        // Trigger loading voices dynamically
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+        }
+
+        // Auto-scroll chat to the bottom
         function scrollToBottom() {
-            setTimeout(() => {
-                scrollAnchor.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            }, 100);
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function updateSendButtonState() {
-            const hasText = inputText.value.trim().length > 0;
-            if (hasText && !isLoading && !isFinished) {
-                btnSend.disabled = false;
-                btnSend.classList.remove('bg-gray-300', 'text-gray-500');
-                btnSend.classList.add('bg-blue-600', 'text-white', 'shadow-md');
-            } else {
-                btnSend.disabled = true;
-                btnSend.classList.add('bg-gray-300', 'text-gray-500');
-                btnSend.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
-            }
-        }
+        // Fetch response from Gemini API
+        async function fetchGeminiResponse() {
+            // Use platform's auto-provided empty key trick.
+            // If the user pasted theirs, prioritize it.
+            const userKey = document.getElementById('apiKeyInput').value.trim();
+            const apiKey = userKey || ""; // Canvas auto-injects if left empty.
 
-        function formatMessageText(text) {
-            // Highlights Spanish text inside parenthesis for corrections
-            return text.replace(/\((.*?)\)/g, '<span class="block mt-2 text-sm text-amber-700 bg-amber-50 px-2 py-1.5 border border-amber-200 rounded italic shadow-sm">($1)</span>');
-        }
-
-        function renderMessages() {
-            messagesWrapper.innerHTML = '';
-            messages.forEach(msg => {
-                const isUser = msg.role === 'user';
-                const divContainer = document.createElement('div');
-                divContainer.className = `flex ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`;
-                
-                const bubble = document.createElement('div');
-                bubble.className = `max-w-[85%] p-4 rounded-2xl shadow-sm text-base ${
-                    isUser 
-                    ? 'bg-blue-600 text-white rounded-br-none' 
-                    : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
-                }`;
-
-                if (!isUser) {
-                    const header = document.createElement('div');
-                    header.className = "text-xs font-bold text-gray-400 mb-1 flex items-center gap-1";
-                    header.innerHTML = 'John <span class="bg-green-500 w-1.5 h-1.5 rounded-full inline-block"></span>';
-                    bubble.appendChild(header);
-                }
-
-                const content = document.createElement('div');
-                content.innerHTML = formatMessageText(msg.text);
-                bubble.appendChild(content);
-
-                divContainer.appendChild(bubble);
-                messagesWrapper.appendChild(divContainer);
-            });
-            scrollToBottom();
-        }
-
-        function base64ToArrayBuffer(base64) {
-            const binaryString = window.atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
-            }
-        }
-
-        function pcmToWav(pcmData, sampleRate) {
-            const numChannels = 1;
-            const bitsPerSample = 16;
-            const blockAlign = numChannels * (bitsPerSample / 8);
-            const byteRate = sampleRate * blockAlign;
-            const dataSize = pcmData.length * 2;
-            const buffer = new ArrayBuffer(44 + dataSize);
-            const view = new DataView(buffer);
-
-            writeString(view, 0, 'RIFF');
-            view.setUint32(4, 36 + dataSize, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, numChannels, true);
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, byteRate, true);
-            view.setUint16(32, blockAlign, true);
-            view.setUint16(34, bitsPerSample, true);
-            writeString(view, 36, 'data');
-            view.setUint32(40, dataSize, true);
-
-            let offset = 44;
-            for (let i = 0; i < pcmData.length; i++, offset += 2) {
-                view.setInt16(offset, pcmData[i], true);
-            }
-
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            speechRecognition = new SpeechRecognition();
-            speechRecognition.continuous = false;
-            speechRecognition.interimResults = true;
-            speechRecognition.lang = 'en-US';
-
-            speechRecognition.onresult = (event) => {
-                let interimTranscript = '';
-                let finalTranscript = '';
-
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
-                    } else {
-                        interimTranscript += event.results[i][0].transcript;
-                    }
-                }
-                
-                if (finalTranscript) {
-                    inputText.value = inputText.value + finalTranscript + ' ';
-                    updateSendButtonState();
-                }
-            };
-
-            speechRecognition.onend = () => {
-                setRecordingState(false);
-            };
-            
-            speechRecognition.onerror = (event) => {
-                console.error("Speech recognition error:", event.error);
-                setRecordingState(false);
-                if (event.error !== 'no-speech') {
-                    showToast("Error con el micrófono. Por favor intenta escribiendo.");
-                }
-            };
-        }
-
-        function setRecordingState(recording) {
-            isRecording = recording;
-            if (isRecording) {
-                btnMic.classList.remove('bg-white', 'text-gray-600');
-                btnMic.classList.add('bg-red-500', 'text-white');
-                // Create a pulsing effect
-                btnMic.style.animation = "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite";
-                iconMic.classList.add('hidden');
-                iconMicOff.classList.remove('hidden');
-                inputText.placeholder = "Escuchando...";
-            } else {
-                btnMic.classList.add('bg-white', 'text-gray-600');
-                btnMic.classList.remove('bg-red-500', 'text-white');
-                btnMic.style.animation = "none";
-                iconMic.classList.remove('hidden');
-                iconMicOff.classList.add('hidden');
-                inputText.placeholder = "Type or dictate in English...";
-            }
-            updateSendButtonState();
-        }
-
-        function toggleRecording() {
-            if (!speechRecognition) {
-                showToast("Tu navegador no soporta dictado por voz.");
-                return;
-            }
-            
-            if (isRecording) {
-                speechRecognition.stop();
-                setRecordingState(false);
-            } else {
-                inputText.value = ''; // Clear for new dictation
-                try {
-                    speechRecognition.start();
-                    setRecordingState(true);
-                } catch(e) {
-                    console.error("Could not start recognition:", e);
-                }
-            }
-        }
-
-        async function callChatAPI(chatHistory) {
-            const systemPrompt = `Act as an English teacher for an A1 beginner student. We are practicing a basic introduction dialogue based on the text "Unit 1: Nice to meet you!".
-Your name is John.
-Rules:
-1. Write only one turn at a time.
-2. Use simple A1 vocabulary.
-3. Maximum 2 sentences per response.
-4. CRITICAL: If the student makes a grammatical mistake or spelling error, you MUST correct them gently in Spanish inside parentheses before responding in English. Example: "(Nota: Se dice 'I am 25 years old', no 'I have 25 years')."
-5. Guide the dialogue by asking the student about their: Name -> Country -> Age -> Job, in that order. Wait for their response each time.
-6. Once you have acknowledged their job and the dialogue feels complete, append the exact word [FINISHED] at the very end of your text.`;
-
-            const formattedHistory = chatHistory.map(m => ({
-                role: m.role === 'model' ? 'model' : 'user',
-                parts: [{ text: m.text }]
-            }));
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
             const payload = {
-                contents: formattedHistory,
-                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: chatHistory,
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
             };
 
-            // Using empty proxy key as per platform rules for the free chat model
-            const proxyKey = ""; 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${proxyKey}`;
+            // Implement Exponential Backoff wrapper
+            const maxRetries = 3;
+            let attempt = 0;
+            let delay = 1000;
 
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            while (attempt < maxRetries) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-            if (!response.ok) throw new Error("API call failed");
-            
-            const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I didn't catch that.";
-        }
+                    if (response.status === 429) {
+                        // Throttled! Backoff
+                        attempt++;
+                        await new Promise(res => setTimeout(res, delay));
+                        delay *= 2;
+                        continue;
+                    }
 
-        async function playTTS(text) {
-            const apiKey = localStorage.getItem('gemini_tts_key') || '';
-            
-            // Filter out the spanish instructions inside parenthesis so the voice only speaks english
-            const textToSpeak = text.replace(/\(.*?\)/g, '').trim(); 
-            if (!textToSpeak) return;
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
 
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
-
-            // Fallback to browser standard TTS if no API key is provided
-            if (!apiKey.trim()) {
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                utterance.lang = 'en-GB';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-                return;
-            }
-
-            try {
-                const payload = {
-                    contents: [{ parts: [{ text: textToSpeak }] }],
-                    generationConfig: {
-                        responseModalities: ["AUDIO"],
-                        speechConfig: {
-                            voiceConfig: {
-                                prebuiltVoiceConfig: { voiceName: "Puck" } // User requested Puck (Male)
-                            }
-                        }
-                    },
-                    model: "gemini-2.5-flash-preview-tts"
-                };
-
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) throw new Error("TTS Request Failed");
-
-                const result = await response.json();
-                const part = result?.candidates?.[0]?.content?.parts?.[0];
-                const audioData = part?.inlineData?.data;
-                const mimeType = part?.inlineData?.mimeType;
-
-                if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10) || 24000;
-                    const pcmData = base64ToArrayBuffer(audioData);
-                    const pcm16 = new Int16Array(pcmData);
-                    const wavBlob = pcmToWav(pcm16, sampleRate);
-                    const audioUrl = URL.createObjectURL(wavBlob);
+                    const result = await response.json();
+                    const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
                     
-                    currentAudio = new Audio(audioUrl);
-                    currentAudio.play();
+                    if (aiText) {
+                        return aiText;
+                    } else {
+                        throw new Error("No readable text returned from API.");
+                    }
+
+                } catch (error) {
+                    if (attempt === maxRetries - 1) {
+                        throw error;
+                    }
+                    attempt++;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
                 }
-            } catch (error) {
-                console.error("TTS Error:", error);
-                showToast("Error con la voz realista. Verifica tu API Key o usa la voz gratuita.");
             }
         }
 
-        async function handleSend() {
-            const text = inputText.value.trim();
-            if (!text || isLoading || isFinished) return;
+        // Message Sender
+        async function handleSendMessage(event) {
+            event.preventDefault();
 
-            if (isRecording && speechRecognition) {
-                speechRecognition.stop();
-                setRecordingState(false);
-            }
+            const userInputEl = document.getElementById('userInput');
+            const messageText = userInputEl.value.trim();
+            if (!messageText) return;
 
-            // Add user message
-            messages.push({ role: 'user', text: text });
-            inputText.value = '';
-            updateSendButtonState();
-            renderMessages();
+            // 1. Render User Message immediately
+            appendMessage(messageText, 'user');
+            userInputEl.value = ""; // Clear input
             
-            isLoading = true;
-            loadingIndicator.classList.remove('hidden');
-            loadingIndicator.classList.add('flex');
+            // 2. Save in local history
+            chatHistory.push({ role: "user", parts: [{ text: messageText }] });
+            
+            // 3. Analyze Objectives Progress (client side heuristic updates)
+            updateObjectivesTracker(messageText);
+
+            // 4. Render typing state
+            const loadingId = appendTypingIndicator();
             scrollToBottom();
-            inputText.disabled = true;
 
             try {
-                let aiResponse = await callChatAPI(messages);
+                // 5. Query Gemini
+                const aiResponse = await fetchGeminiResponse();
                 
-                // Check if interaction is finished
-                let chatFinished = false;
-                if (aiResponse.includes('[FINISHED]')) {
-                    chatFinished = true;
-                    aiResponse = aiResponse.replace('[FINISHED]', '').trim();
-                }
+                // Remove typing state
+                removeTypingIndicator(loadingId);
 
-                messages.push({ role: 'model', text: aiResponse });
-                renderMessages();
+                // 6. Append AI response
+                appendMessage(aiResponse, 'model');
                 
-                // Play Audio
-                playTTS(aiResponse);
+                // Add to history
+                chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
 
-                if (chatFinished) {
-                    isFinished = true;
-                    finishedState.classList.remove('hidden');
-                    inputText.placeholder = "Práctica finalizada.";
-                    btnMic.disabled = true;
-                    btnMic.classList.add('opacity-50');
-                    scrollToBottom();
-                }
-                
-            } catch (error) {
-                console.error(error);
-                showToast("Hubo un error de conexión. Revisa tu internet e intenta de nuevo.");
-                // Remove the last user message so they can try again
-                messages.pop();
-                renderMessages();
-                inputText.value = text; 
-                updateSendButtonState();
-            } finally {
-                isLoading = false;
-                loadingIndicator.classList.add('hidden');
-                loadingIndicator.classList.remove('flex');
-                if (!isFinished) {
-                    inputText.disabled = false;
-                    inputText.focus();
-                }
+                // Try to speak response naturally
+                speakText(aiResponse);
+
+            } catch (err) {
+                console.error("Gemini API error: ", err);
+                removeTypingIndicator(loadingId);
+                appendMessage("Oh no! I had a slight connection problem. Could you try saying that again? (Hubo un problema de conexión. Por favor reintenta).", 'model');
             }
+
+            scrollToBottom();
         }
 
-        function downloadTranscript() {
-            let transcriptContent = "Unit 1: Nice to meet you! - Practice Transcript\n";
-            transcriptContent += "=================================================\n\n";
+        // UI Helpers for chat bubbles
+        function appendMessage(text, role) {
+            const chatMessages = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
             
-            messages.forEach(m => {
-                const speaker = m.role === 'model' ? 'John (Teacher)' : 'Student';
-                // Remove the finished tag or html elements for clean text
-                let cleanText = m.text.replace(/<[^>]*>?/gm, '');
-                transcriptContent += `${speaker}: ${cleanText}\n\n`;
+            if (role === 'user') {
+                msgDiv.className = "flex justify-end max-w-[85%] ml-auto";
+                msgDiv.innerHTML = `
+                    <div class="bg-gradient-to-tr from-teal-600 to-indigo-600 text-white px-4 py-3 rounded-2xl rounded-tr-none shadow-md text-sm leading-relaxed">
+                        ${escapeHtml(text)}
+                    </div>
+                `;
+            } else {
+                // Render John (Model) with volume output features
+                msgDiv.className = "flex gap-3 max-w-[85%]";
+                
+                // Separate natural text from optional parenthetical Spanish corrections
+                const htmlFormatted = formatTeacherMessage(text);
+
+                msgDiv.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                        J
+                    </div>
+                    <div class="space-y-1">
+                        <div class="bg-white border border-slate-200/80 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-slate-700 text-sm leading-relaxed">
+                            ${htmlFormatted}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="text-teal-600 hover:text-teal-700 text-xs flex items-center gap-1 px-1 py-0.5 rounded transition-colors speak-btn" title="Escuchar pronunciación">
+                                <i class="fa-solid fa-volume-high"></i> Escuchar
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Wire up speech synthesis trigger directly to bubble button
+                msgDiv.querySelector('.speak-btn').addEventListener('click', () => {
+                    speakText(text);
+                });
+            }
+
+            chatMessages.appendChild(msgDiv);
+        }
+
+        // Helper to formatting Teacher Correction styling nicely
+        function formatTeacherMessage(text) {
+            // Find content in parentheses (the gentle correction) and style it in italics with an amber color context
+            return escapeHtml(text).replace(/\(([^)]+)\)/g, (match, p1) => {
+                return `<span class="block mt-1 text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-1.5 font-medium"><i class="fa-solid fa-wand-magic-sparkles"></i> Tip: ${p1}</span>`;
             });
-
-            const blob = new Blob([transcriptContent], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'My_English_Introduction.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast("¡Archivo descargado! Recuerda subirlo a Google Classroom.");
         }
 
-        // Add CSS keyframes dynamically for the mic pulse
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes pulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: .7; transform: scale(0.95); }
+        function appendTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const loadingDiv = document.createElement('div');
+            const id = 'typing-' + Date.now();
+            loadingDiv.id = id;
+            loadingDiv.className = "flex gap-3 max-w-[85%]";
+            loadingDiv.innerHTML = `
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 text-xs font-bold">
+                    J
+                </div>
+                <div class="bg-slate-100 border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                </div>
+            `;
+            chatMessages.appendChild(loadingDiv);
+            return id;
+        }
+
+        function removeTypingIndicator(id) {
+            const indicator = document.getElementById(id);
+            if (indicator) indicator.remove();
+        }
+
+        // Simple NLP tracking heuristics for levels objectives checklist
+        function updateObjectivesTracker(text) {
+            const lowerText = text.toLowerCase();
+            
+            // Heuristic 1: Name
+            if (!objectives.name && (lowerText.includes("my name is") || lowerText.includes("i am ") || lowerText.includes("i'm ") || lowerText.includes("me llamo"))) {
+                markObjectiveComplete('name');
             }
-        `;
-        document.head.appendChild(style);
 
-        // Event Listeners
-        inputText.addEventListener('input', updateSendButtonState);
-        inputText.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSend();
-        });
-        
-        btnSend.addEventListener('click', handleSend);
-        btnMic.addEventListener('click', toggleRecording);
-        
-        btnSettings.addEventListener('click', () => {
-            modalSettings.classList.remove('hidden');
-        });
-        
-        btnCloseSettings.addEventListener('click', () => {
-            modalSettings.classList.add('hidden');
-            inputApiKey.value = localStorage.getItem('gemini_tts_key') || '';
-        });
-        
-        btnSaveSettings.addEventListener('click', () => {
-            localStorage.setItem('gemini_tts_key', inputApiKey.value.trim());
-            modalSettings.classList.add('hidden');
-            showToast("Configuración guardada exitosamente.");
-        });
+            // Heuristic 2: Country
+            if (!objectives.country && (lowerText.includes("from") || lowerText.includes("de ") || lowerText.includes("vivir") || lowerText.includes("soy de"))) {
+                markObjectiveComplete('country');
+            }
 
-        btnDownload.addEventListener('click', downloadTranscript);
+            // Heuristic 3: Age
+            if (!objectives.age && (lowerText.includes("years old") || lowerText.includes("tengo") || /\b\d{2}\b/.test(lowerText))) {
+                markObjectiveComplete('age');
+            }
 
+            // Heuristic 4: Job
+            if (!objectives.job && (lowerText.includes("a ") || lowerText.includes("an ") || lowerText.includes("job") || lowerText.includes("trabajo") || lowerText.includes("soy ") || lowerText.includes("student") || lowerText.includes("teacher") || lowerText.includes("doctor") || lowerText.includes("engineer"))) {
+                markObjectiveComplete('job');
+            }
+        }
+
+        function markObjectiveComplete(key) {
+            objectives[key] = true;
+            const li = document.getElementById(`obj-${key}`);
+            if (li) {
+                li.classList.remove('opacity-60');
+                li.classList.add('opacity-100', 'font-semibold');
+                const check = li.querySelector('.check-icon');
+                check.className = "mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 check-icon shadow-inner animate-bounce";
+                check.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+            }
+
+            // Update fraction counter
+            const completedCount = Object.values(objectives).filter(Boolean).length;
+            document.getElementById('completionRate').textContent = `${completedCount}/4`;
+        }
+
+        // Escape HTML to prevent injection
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"']/g, function (s) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[s];
+            });
+        }
+
+        // Reset Practice Space
+        function resetPractice() {
+            chatHistory = [
+                { role: "model", parts: [{ text: "Hello! My name is John. What is your name?" }] }
+            ];
+
+            // Reset objectives logic
+            for (let key in objectives) {
+                objectives[key] = false;
+                const li = document.getElementById(`obj-${key}`);
+                if (li) {
+                    li.classList.add('opacity-60');
+                    li.classList.remove('opacity-100', 'font-semibold');
+                    const check = li.querySelector('.check-icon');
+                    check.className = "mt-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 check-icon";
+                    check.innerHTML = '<i class="fa-solid fa-circle"></i>';
+                }
+            }
+
+            document.getElementById('completionRate').textContent = "0/4";
+
+            // Restore initial screen messages
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="flex gap-3 max-w-[85%]">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                        J
+                    </div>
+                    <div class="space-y-1">
+                        <div class="bg-white border border-slate-200/80 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-slate-700 text-sm leading-relaxed">
+                            Hello! My name is John. What is your name?
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="speakText('Hello! My name is John. What is your name?')" class="text-teal-600 hover:text-teal-700 text-xs flex items-center gap-1 px-1 py-0.5 rounded transition-colors" title="Escuchar pronunciación">
+                                <i class="fa-solid fa-volume-high"></i> Escuchar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showAlert("Práctica Reiniciada", "La conversación ha sido reiniciada. ¡Dile tu nombre a John para comenzar de nuevo!");
+        }
+
+        // Initialize Speak welcome
+        window.onload = function() {
+            speakText("Hello! My name is John. What is your name?");
+        }
     </script>
 </body>
 </html>
